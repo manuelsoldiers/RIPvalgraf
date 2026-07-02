@@ -1,0 +1,201 @@
+:root {
+  --bg: #e9edf0;
+  --card-bg: #ffffff;
+  --card-border: #e3e6ea;
+  --field-bg: #e8edfb;
+  --field-border: #d3dbf0;
+  --text-dark: #2c2c2c;
+  --text-muted: #6c757d;
+  --hint: #4a4a4a;
+  --accent: #2f6bff;
+  --accent-hover: #1f57e0;
+  --link: #2f6bff;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text-dark);
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 16px;
+}
+
+/* ---- Screen switching (per le schermate future del gioco) ---- */
+.screen { display: none; width: 100%; max-width: 440px; }
+.screen.active { display: block; }
+
+/* ---- Titolo applicazione ---- */
+.app-title {
+  text-align: center;
+  font-weight: 400;
+  color: #333;
+  margin: 8px 0 28px;
+  line-height: 1.25;
+}
+.app-title span {
+  display: block;
+  font-size: 2.1rem;
+}
+
+/* ---- Card di login ---- */
+.login-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.login-header {
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--card-border);
+  text-align: center;
+}
+
+.ssr-label {
+  margin: 0 0 10px;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: #3a3a8f;
+  font-weight: 700;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.cross-logo {
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.brand-name {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #2e2e8f;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.tomb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tomb-icon { width: 30px; height: 34px; }
+.tomb-date {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Corpo del form ---- */
+.login-body {
+  padding: 26px 34px 30px;
+}
+
+.login-hint {
+  text-align: center;
+  color: var(--hint);
+  font-size: 1.02rem;
+  margin: 0 0 22px;
+  line-height: 1.4;
+}
+
+.field {
+  position: relative;
+  display: flex;
+  margin-bottom: 16px;
+}
+
+.field-input {
+  flex: 1;
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+  padding: 12px 14px;
+  font-size: 1rem;
+  color: var(--text-dark);
+  outline: none;
+}
+.field-input::placeholder { color: #9aa3b2; }
+.field-input:focus {
+  border-color: var(--accent);
+  background: #eef2ff;
+}
+.field-input[readonly] {
+  color: #4a4a4a;
+  cursor: default;
+}
+
+.field-icon {
+  width: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid var(--field-border);
+  border-radius: 0 6px 6px 0;
+}
+.field-icon-btn {
+  cursor: pointer;
+  padding: 0;
+}
+.field-icon-btn:hover { background: #f4f6fb; }
+
+.login-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.btn-accedi {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 11px 26px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.btn-accedi:hover { background: var(--accent-hover); }
+.btn-accedi:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.forgot-link {
+  display: inline-block;
+  margin-top: 18px;
+  color: var(--link);
+  font-size: 0.95rem;
+  text-decoration: underline;
+}
+.forgot-link:hover { color: var(--accent-hover); }
