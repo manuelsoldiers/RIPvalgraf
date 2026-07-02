@@ -27,17 +27,20 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.page {
+/* ---- Screen switching ---- */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* Login: centrato verticalmente */
+.login-wrap {
   min-height: 100vh;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   padding: 48px 16px;
 }
-
-/* ---- Screen switching (per le schermate future del gioco) ---- */
-.screen { display: none; width: 100%; max-width: 440px; }
-.screen.active { display: block; }
+.login-card { width: 100%; max-width: 440px; }
 
 /* ---- Titolo applicazione ---- */
 .app-title {
@@ -199,3 +202,169 @@ body {
   text-decoration: underline;
 }
 .forgot-link:hover { color: var(--accent-hover); }
+
+/* ==================================================================
+   SCHERMATA DI GIOCO (gestionale Val.Graf.)
+   ================================================================== */
+#screen-game {
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+/* Croce/lapide in versione ridotta per l'header */
+.cross-logo--sm { width: 40px; height: 40px; }
+.tomb-icon--sm { width: 26px; height: 30px; }
+
+/* Fascia intestazione */
+.app-header {
+  height: 96px;
+  background: linear-gradient(180deg, #dfe8f3 0%, #cdd9ec 55%, #b9c8e0 100%);
+  border-bottom: 2px solid #9fb2cf;
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+}
+.app-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.app-header-name {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #2e2e8f;
+  letter-spacing: 0.01em;
+}
+.app-header-date {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #5a6472;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Barra utente */
+.user-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  padding: 10px 22px;
+  background: #f3f5f8;
+  border-bottom: 1px solid #dfe3e8;
+}
+.user-badge {
+  background: #fff;
+  border: 1px solid #cfd6df;
+  border-radius: 3px;
+  padding: 6px 18px;
+  font-size: 0.95rem;
+  color: #333;
+  min-width: 220px;
+  text-align: center;
+}
+.btn-pausa {
+  background: #2f6bff;
+  color: #fff;
+  border: 1px solid #1f57e0;
+  border-radius: 4px;
+  padding: 7px 22px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  transition: background 0.15s ease;
+}
+.btn-pausa:hover { background: #1f57e0; }
+
+/* Corpo: sidebar + contenuto */
+.app-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 26px;
+  padding: 24px 22px 40px;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 210px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.side-item {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 9px 10px;
+  font-size: 0.95rem;
+  border: 1px solid #9fb2cf;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #f4f7fb 0%, #dde6f2 100%);
+  color: #7f8794;               /* disattivati: testo tenue */
+  cursor: not-allowed;
+}
+.side-item:disabled { opacity: 0.85; }
+
+/* Unico tasto attivo: in evidenza + lampeggiante */
+.side-item--active {
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+  border-color: #b3261e;
+  background: linear-gradient(180deg, #ff5b52 0%, #e2231a 100%);
+  box-shadow: 0 0 0 0 rgba(226, 35, 26, 0.6);
+  animation: pulse-blink 1.2s ease-in-out infinite;
+}
+.side-item--active:hover { filter: brightness(1.05); }
+
+@keyframes pulse-blink {
+  0%   { box-shadow: 0 0 0 0 rgba(226, 35, 26, 0.55); opacity: 1; }
+  50%  { box-shadow: 0 0 0 8px rgba(226, 35, 26, 0);  opacity: 0.72; }
+  100% { box-shadow: 0 0 0 0 rgba(226, 35, 26, 0);    opacity: 1; }
+}
+
+/* Contenuto */
+.content { flex: 1; min-width: 0; }
+.content-title {
+  font-size: 1.35rem;
+  color: #1c1c1c;
+  margin: 4px 0 22px;
+}
+.content-search {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 14px;
+  color: #333;
+}
+.content-search input {
+  border: 1px solid #cfd6df;
+  border-radius: 3px;
+  padding: 5px 8px;
+  width: 220px;
+  background: #fff;
+}
+
+/* Tabella CAD */
+.cad-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #cfd6df;
+  font-size: 0.92rem;
+}
+.cad-table thead th {
+  background: linear-gradient(180deg, #cfe0f4 0%, #b7cdea 100%);
+  color: #24324a;
+  text-align: left;
+  vertical-align: top;
+  padding: 12px 12px;
+  border: 1px solid #9fb2cf;
+  font-weight: 700;
+}
+.cad-table tbody td {
+  padding: 12px;
+  border: 1px solid #dfe3e8;
+  vertical-align: top;
+}

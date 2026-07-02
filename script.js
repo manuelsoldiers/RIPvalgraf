@@ -10,6 +10,14 @@ const session = {
   username: null,
 };
 
+// Passa da una schermata all'altra (login <-> gioco).
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach((s) => {
+    s.classList.toggle("active", s.id === id);
+  });
+  window.scrollTo(0, 0);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("login-form");
   const usernameInput = document.getElementById("username");
@@ -41,11 +49,27 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     session.username = name;
-    // TODO (passaggi successivi): passare alla schermata di gioco
-    // e registrare l'username nella leaderboard cloud.
-    console.log("Sessione avviata per:", session.username);
-    alert(`Benvenuto/a, ${session.username}! (Il gioco arriverà a breve.)`);
+    // Mostra il nome utente nella barra del gestionale e apre la schermata di gioco.
+    document.getElementById("user-name").textContent = session.username;
+    showScreen("screen-game");
   });
 
   usernameInput.focus();
+
+  // ---- Schermata di gioco ----
+  const startGameBtn = document.getElementById("start-game-btn");
+  const pausaBtn = document.getElementById("pausa-btn");
+
+  // "Da prendere in carico": avvia effettivamente il gioco.
+  startGameBtn.addEventListener("click", () => {
+    // TODO (passaggi successivi): avviare la vera dinamica di gioco
+    // (comparsa delle richieste nella tabella, punteggio, ecc.).
+    console.log("Avvio partita per:", session.username);
+  });
+
+  // "Pausa": metterà in pausa il gioco (menu di pausa nei passaggi successivi).
+  pausaBtn.addEventListener("click", () => {
+    // TODO (passaggi successivi): aprire il menu di pausa.
+    console.log("Pausa richiesta");
+  });
 });
