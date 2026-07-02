@@ -24,6 +24,13 @@ const RULES = {
   MIN_INTERVAL: 650,     // intervallo minimo (massima difficoltà)
   SPEEDUP: 0.94,         // fattore di accelerazione per ogni riga comparsa
   POINTS: { OCC: 1, ADI: 2 },
+  // Soglie di difficoltà basate sul tempo tra una richiesta e l'altra,
+  // confrontato con i tempi di reazione umani (scelta + azione ~500-700ms):
+  //  - "facile":     intervallo ampio, si fa in tempo comodamente
+  //  - "intermedio": ci si avvicina al tempo di reazione+azione medio
+  //  - "difficile":  intervallo sotto la soglia comoda -> serve prontezza
+  EASY_MS: 1500,         // >= 1.5s tra le righe => facile (verde)
+  HARD_MS: 900,          // < 0.9s tra le righe => difficile (rosso)
 };
 
 // Dati sintetici di test.
@@ -94,6 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const pauseOverlay = document.getElementById("pause-overlay");
   const resumeBtn = document.getElementById("resume-btn");
   const toMenuBtn = document.getElementById("tomenu-btn");
+  const diffLevelEl = document.getElementById("diff-level");
 
   // Aggiorna il punteggio a schermo con un piccolo effetto.
   function setScore(value) {
@@ -147,12 +155,26 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   }
 
+  // Aggiorna il numero di livello e il colore in base alla velocità corrente.
+  function updateDifficulty() {
+    const level = game.spawned + 1; // parte da 1 e cresce con la velocità
+    const interval = nextDelay();
+    diffLevelEl.textContent = level;
+
+    let cls = "diff-medium";
+    if (interval >= RULES.EASY_MS) cls = "diff-easy";
+    else if (interval < RULES.HARD_MS) cls = "diff-hard";
+    diffLevelEl.classList.remove("diff-easy", "diff-medium", "diff-hard");
+    diffLevelEl.classList.add(cls);
+  }
+
   // Pianifica la comparsa della prossima riga, accelerando col tempo.
   function scheduleNext(delay) {
     game.spawnTimer = setTimeout(() => {
       if (!game.running || game.paused) return;
       spawnRow();
       game.spawned++;
+      updateDifficulty();
 
       // Game over: più di MAX_ROWS richieste contemporaneamente a schermo.
       if (rowsOnScreen() > RULES.MAX_ROWS) {
@@ -174,6 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
     rowsBody.innerHTML = "";
     scoreChip.hidden = false;
     setScore(0);
+    updateDifficulty(); // livello iniziale
     pausaBtn.disabled = false; // la pausa è attivabile solo a partita in corso
 
     // Animazione: il menu laterale scompare e la tabella si centra.
@@ -232,6 +255,8 @@ document.addEventListener("DOMContentLoaded", () => {
     rowsBody.innerHTML = "";
     scoreChip.hidden = true;
     setScore(0);
+    game.spawned = 0;
+    updateDifficulty(); // riporta l'indicatore al livello 1 (verde)
     pausaBtn.disabled = true;
     appBody.classList.remove("playing");
   }
