@@ -88,6 +88,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
   usernameInput.focus();
 
+  // ---- Easter egg: "Ho dimenticato la password" -> assistenza SIAT ----
+  const forgotLink = document.getElementById("forgot-link");
+  const siatOverlay = document.getElementById("siat-overlay");
+  const siatStep1 = document.getElementById("siat-step-1");
+  const siatStep2 = document.getElementById("siat-step-2");
+  const siatAskBtn = document.getElementById("siat-ask-btn");
+  const siatClose = document.getElementById("siat-close");
+
+  forgotLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    siatStep1.hidden = false;
+    siatStep2.hidden = true;
+    siatOverlay.hidden = false;
+  });
+  siatAskBtn.addEventListener("click", () => {
+    // Parte l'attesa infinita: unica via d'uscita è la X.
+    siatStep1.hidden = true;
+    siatStep2.hidden = false;
+  });
+  siatClose.addEventListener("click", () => {
+    siatOverlay.hidden = true;
+  });
+
   // ------------------------- GIOCO -------------------------
   const appBody = document.querySelector(".app-body");
   const startGameBtn = document.getElementById("start-game-btn");

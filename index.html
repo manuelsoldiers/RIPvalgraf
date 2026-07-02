@@ -93,7 +93,27 @@
             </div>
           </form>
 
-          <a href="#" class="forgot-link">Ho dimenticato la password</a>
+          <a href="#" class="forgot-link" id="forgot-link">Ho dimenticato la password</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Easter egg: assistenza SIAT -->
+    <div class="overlay" id="siat-overlay" hidden>
+      <div class="overlay-box siat-box">
+        <button type="button" class="overlay-close" id="siat-close" aria-label="Chiudi">&times;</button>
+
+        <!-- Passo 1: richiesta assistenza -->
+        <div id="siat-step-1">
+          <h2 class="overlay-title overlay-title--pause">Recupero password</h2>
+          <p class="overlay-text">Non riesci ad accedere al sistema?</p>
+          <button type="button" id="siat-ask-btn" class="btn-accedi">Chiedi assistenza al SIAT</button>
+        </div>
+
+        <!-- Passo 2: attesa infinita -->
+        <div id="siat-step-2" hidden>
+          <div class="siat-spinner" aria-hidden="true"></div>
+          <p class="overlay-text siat-wait">Tempo di attesa stimato 256 giorni…</p>
         </div>
       </div>
     </div>
