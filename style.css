@@ -261,6 +261,17 @@ body {
   color: #333;
   min-width: 220px;
   text-align: center;
+  cursor: default;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+/* Cliccabile solo prima dell'avvio partita (schermata "Da prendere in carico") */
+.user-badge.clickable {
+  cursor: pointer;
+  border-color: #2f6bff;
+}
+.user-badge.clickable:hover {
+  background: #eef2ff;
+  border-color: #1f57e0;
 }
 .btn-pausa {
   background: #2f6bff;

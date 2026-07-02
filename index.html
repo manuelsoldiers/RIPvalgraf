@@ -124,7 +124,9 @@
       <div class="score-chip" id="score-chip" hidden>
         Punteggio: <span id="score">0</span>
       </div>
-      <div class="user-badge"><span id="user-name">utente</span> - CAD</div>
+      <div class="user-badge" id="user-badge" title="Torna alla schermata di accesso">
+        <span id="user-name">utente</span> - CAD
+      </div>
       <button type="button" id="pausa-btn" class="btn-pausa">Pausa</button>
     </div>
 
@@ -177,6 +179,21 @@
             <!-- Corpo tabella vuoto: le richieste compariranno durante il gioco -->
             <tbody id="cad-rows"></tbody>
           </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overlay di conferma: torna alla schermata di accesso -->
+    <div class="overlay" id="logout-overlay" hidden>
+      <div class="overlay-box">
+        <h2 class="overlay-title overlay-title--pause">Tornare all'accesso?</h2>
+        <p class="overlay-text">
+          Vuoi tornare alla schermata di accesso utente?<br />
+          La sessione corrente verrà annullata.
+        </p>
+        <div class="overlay-actions">
+          <button type="button" id="logout-confirm-btn" class="btn-accedi">Sì, torna all'accesso</button>
+          <button type="button" id="logout-cancel-btn" class="btn-ghost">Annulla</button>
         </div>
       </div>
     </div>

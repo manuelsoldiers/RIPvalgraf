@@ -83,6 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
     session.username = name;
     document.getElementById("user-name").textContent = session.username;
     showScreen("screen-game");
+    setBadgeClickable(true); // stato pre-partita: si può tornare all'accesso
   });
 
   usernameInput.focus();
@@ -101,6 +102,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const resumeBtn = document.getElementById("resume-btn");
   const toMenuBtn = document.getElementById("tomenu-btn");
   const diffLevelEl = document.getElementById("diff-level");
+  const userBadge = document.getElementById("user-badge");
+  const logoutOverlay = document.getElementById("logout-overlay");
+  const logoutConfirmBtn = document.getElementById("logout-confirm-btn");
+  const logoutCancelBtn = document.getElementById("logout-cancel-btn");
+
+  // Il badge utente è cliccabile solo prima dell'avvio della partita.
+  function setBadgeClickable(on) {
+    userBadge.classList.toggle("clickable", on);
+  }
 
   // Aggiorna il punteggio a schermo con un piccolo effetto.
   function setScore(value) {
@@ -196,6 +206,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setScore(0);
     updateDifficulty(); // livello iniziale
     pausaBtn.disabled = false; // la pausa è attivabile solo a partita in corso
+    setBadgeClickable(false); // durante la partita il badge non è cliccabile
 
     // Animazione: il menu laterale scompare e la tabella si centra.
     appBody.classList.add("playing");
@@ -238,6 +249,16 @@ document.addEventListener("DOMContentLoaded", () => {
     resetGame();
   }
 
+  // Torna alla schermata di accesso (login), annullando la sessione corrente.
+  function backToLogin() {
+    logoutOverlay.hidden = true;
+    resetGame();
+    session.username = null;
+    usernameInput.value = "";
+    showScreen("screen-login");
+    usernameInput.focus();
+  }
+
   async function endGame() {
     stopSpawning();
     finalScoreEl.textContent = game.score;
@@ -256,6 +277,7 @@ document.addEventListener("DOMContentLoaded", () => {
     game.spawned = 0;
     updateDifficulty(); // riporta l'indicatore al livello 1 (verde)
     pausaBtn.disabled = true;
+    setBadgeClickable(true); // di nuovo in stato pre-partita
     appBody.classList.remove("playing");
   }
 
@@ -271,4 +293,14 @@ document.addEventListener("DOMContentLoaded", () => {
   pausaBtn.addEventListener("click", pauseGame);
   resumeBtn.addEventListener("click", resumeGame);
   toMenuBtn.addEventListener("click", backToMenu);
+
+  // Click sul badge utente (solo in stato pre-partita): chiede conferma.
+  userBadge.addEventListener("click", () => {
+    if (!userBadge.classList.contains("clickable")) return;
+    logoutOverlay.hidden = false;
+  });
+  logoutConfirmBtn.addEventListener("click", backToLogin);
+  logoutCancelBtn.addEventListener("click", () => {
+    logoutOverlay.hidden = true;
+  });
 });
