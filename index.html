@@ -121,6 +121,9 @@
 
     <!-- Barra utente -->
     <div class="user-bar">
+      <div class="score-chip" id="score-chip" hidden>
+        Punteggio: <span id="score">0</span>
+      </div>
       <div class="user-badge"><span id="user-name">utente</span> - CAD</div>
       <button type="button" id="pausa-btn" class="btn-pausa">Pausa</button>
     </div>
@@ -152,31 +155,47 @@
       </nav>
 
       <div class="content">
-        <h2 class="content-title">Scheda socio-sanitaria da prendere in carico</h2>
+        <div class="content-inner">
+          <h2 class="content-title">Scheda socio-sanitaria da prendere in carico</h2>
 
-        <div class="content-search">
-          <label for="game-search">Search:</label>
-          <input type="text" id="game-search" disabled />
+          <div class="content-search">
+            <label for="game-search">Search:</label>
+            <input type="text" id="game-search" disabled />
+          </div>
+
+          <table class="cad-table">
+            <thead>
+              <tr>
+                <th>Cod<br />P.A</th>
+                <th>Data<br />Apertura</th>
+                <th>Assistito</th>
+                <th>Tipo</th>
+                <th>Note PA</th>
+                <th>Presa in carico</th>
+              </tr>
+            </thead>
+            <!-- Corpo tabella vuoto: le richieste compariranno durante il gioco -->
+            <tbody id="cad-rows"></tbody>
+          </table>
         </div>
+      </div>
+    </div>
 
-        <table class="cad-table">
-          <thead>
-            <tr>
-              <th>Cod<br />P.A</th>
-              <th>Data<br />Apertura</th>
-              <th>Assistito</th>
-              <th>Tipo</th>
-              <th>Note PA</th>
-              <th>Presa in carico</th>
-            </tr>
-          </thead>
-          <!-- Corpo tabella vuoto: le richieste compariranno durante il gioco -->
-          <tbody id="cad-rows"></tbody>
-        </table>
+    <!-- Overlay di Game Over -->
+    <div class="overlay" id="gameover-overlay" hidden>
+      <div class="overlay-box">
+        <h2 class="overlay-title">Game Over</h2>
+        <p class="overlay-text">
+          Troppe richieste da prendere in carico!<br />
+          Il servizio è andato in sovraccarico.
+        </p>
+        <p class="overlay-score">Punteggio finale: <strong id="final-score">0</strong></p>
+        <button type="button" id="restart-btn" class="btn-accedi">Ricomincia</button>
       </div>
     </div>
   </section>
 
+  <script src="leaderboard.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
