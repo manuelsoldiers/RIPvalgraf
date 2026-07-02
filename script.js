@@ -8,6 +8,7 @@ const session = { username: null };
 
 const game = {
   running: false,
+  paused: false,
   score: 0,
   spawned: 0,       // quante righe sono comparse (per accelerare la difficoltà)
   spawnTimer: null, // handle del timer di comparsa
@@ -90,6 +91,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const overlay = document.getElementById("gameover-overlay");
   const finalScoreEl = document.getElementById("final-score");
   const restartBtn = document.getElementById("restart-btn");
+  const pauseOverlay = document.getElementById("pause-overlay");
+  const resumeBtn = document.getElementById("resume-btn");
+  const toMenuBtn = document.getElementById("tomenu-btn");
 
   // Aggiorna il punteggio a schermo con un piccolo effetto.
   function setScore(value) {
@@ -129,16 +133,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Presa in carico: assegna i punti e rimuove la riga.
   function takeCharge(tr, tipo) {
-    if (!game.running || tr.classList.contains("taken")) return;
+    if (!game.running || game.paused || tr.classList.contains("taken")) return;
     setScore(game.score + (RULES.POINTS[tipo] || 0));
     tr.classList.add("taken");
     tr.addEventListener("animationend", () => tr.remove(), { once: true });
   }
 
+  // Intervallo corrente in base al livello di difficoltà raggiunto.
+  function nextDelay() {
+    return Math.max(
+      RULES.MIN_INTERVAL,
+      RULES.START_INTERVAL * Math.pow(RULES.SPEEDUP, game.spawned)
+    );
+  }
+
   // Pianifica la comparsa della prossima riga, accelerando col tempo.
   function scheduleNext(delay) {
     game.spawnTimer = setTimeout(() => {
-      if (!game.running) return;
+      if (!game.running || game.paused) return;
       spawnRow();
       game.spawned++;
 
@@ -148,23 +160,21 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const next = Math.max(
-        RULES.MIN_INTERVAL,
-        RULES.START_INTERVAL * Math.pow(RULES.SPEEDUP, game.spawned)
-      );
-      scheduleNext(next);
+      scheduleNext(nextDelay());
     }, delay);
   }
 
   function startGame() {
     if (game.running) return;
     game.running = true;
+    game.paused = false;
     game.score = 0;
     game.spawned = 0;
     game.seq = 0;
     rowsBody.innerHTML = "";
     scoreChip.hidden = false;
     setScore(0);
+    pausaBtn.disabled = false; // la pausa è attivabile solo a partita in corso
 
     // Animazione: il menu laterale scompare e la tabella si centra.
     appBody.classList.add("playing");
@@ -175,10 +185,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function stopSpawning() {
     game.running = false;
+    game.paused = false;
     if (game.spawnTimer) {
       clearTimeout(game.spawnTimer);
       game.spawnTimer = null;
     }
+  }
+
+  // ---- Pausa ----
+  function pauseGame() {
+    if (!game.running || game.paused) return;
+    game.paused = true;
+    if (game.spawnTimer) {
+      clearTimeout(game.spawnTimer);
+      game.spawnTimer = null;
+    }
+    pauseOverlay.hidden = false;
+  }
+
+  function resumeGame() {
+    if (!game.paused) return;
+    game.paused = false;
+    pauseOverlay.hidden = true;
+    // Riprende dallo stesso livello di difficoltà (game.spawned invariato).
+    scheduleNext(nextDelay());
+  }
+
+  // Torna alla schermata iniziale del gestionale (tasto "Da prendere in carico").
+  function backToMenu() {
+    pauseOverlay.hidden = true;
+    resetGame();
   }
 
   async function endGame() {
@@ -196,18 +232,20 @@ document.addEventListener("DOMContentLoaded", () => {
     rowsBody.innerHTML = "";
     scoreChip.hidden = true;
     setScore(0);
+    pausaBtn.disabled = true;
     appBody.classList.remove("playing");
   }
+
+  // La pausa parte disattivata: si abilita solo quando la partita è in corso.
+  pausaBtn.disabled = true;
 
   startGameBtn.addEventListener("click", startGame);
   restartBtn.addEventListener("click", () => {
     resetGame();
-    // Riavvio immediato di una nuova partita.
-    startGame();
+    startGame(); // riavvio immediato di una nuova partita
   });
 
-  pausaBtn.addEventListener("click", () => {
-    // TODO (passaggi successivi): menu di pausa completo.
-    console.log("Pausa richiesta");
-  });
+  pausaBtn.addEventListener("click", pauseGame);
+  resumeBtn.addEventListener("click", resumeGame);
+  toMenuBtn.addEventListener("click", backToMenu);
 });

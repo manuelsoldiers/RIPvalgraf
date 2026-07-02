@@ -492,3 +492,31 @@ body {
 .overlay-text { color: #444; margin: 0 0 18px; line-height: 1.45; }
 .overlay-score { font-size: 1.15rem; margin: 0 0 24px; color: #1c1c1c; }
 .overlay-score strong { color: #16a34a; font-size: 1.4rem; }
+
+/* Overlay di pausa: azioni impilate */
+.overlay-title--pause { color: #2f6bff; }
+.overlay-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: stretch;
+}
+.btn-ghost {
+  background: #fff;
+  color: #2f6bff;
+  border: 1px solid #b9c8e0;
+  border-radius: 6px;
+  padding: 11px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.btn-ghost:hover { background: #eef2ff; }
+
+/* Pausa disabilitato finché la partita non è in corso */
+.btn-pausa:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
