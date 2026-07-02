@@ -40,7 +40,7 @@ const COGNOMI = ["Rossi", "Russo", "Ferrari", "Esposito", "Bianchi", "Romano",
   "Colombo", "Ricci", "Marino", "Greco", "Bruno", "Gallo", "Conti", "De Luca",
   "Costa", "Giordano", "Mancini", "Rizzo", "Lombardi", "Moretti", "Barbieri"];
 const TIPI = ["OCC", "ADI"];
-const NOTE = ["ciclo di fkt", "medicazioni LDD"];
+// Le "Note PA" e le loro macro-categorie sono in notes.js (NOTES_DB / pickNota).
 
 const rnd = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const rndInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -152,17 +152,19 @@ document.addEventListener("DOMContentLoaded", () => {
   // Crea e inserisce una nuova riga-richiesta.
   function spawnRow() {
     const tipo = rnd(TIPI);
+    const nota = pickNota(); // { categoria, testo } dal database Note PA
     const id = ++game.seq;
 
     const tr = document.createElement("tr");
     tr.dataset.id = id;
     tr.dataset.tipo = tipo;
+    tr.dataset.notaCategoria = nota.categoria; // per la futura animazione per categoria
     tr.innerHTML = `
       <td>${rndInt(100000, 200000)}</td>
       <td>${RULES.DATA_APERTURA}</td>
       <td>${rnd(NOMI)} ${rnd(COGNOMI)}</td>
       <td><span class="tipo-badge tipo-${tipo}">${tipo}</span></td>
-      <td>${rnd(NOTE)}</td>
+      <td>${nota.testo}</td>
       <td><button type="button" class="btn-carico">PRENDI IN CARICO</button></td>
     `;
     tr.querySelector(".btn-carico").addEventListener("click", () =>
