@@ -24,13 +24,12 @@ const RULES = {
   MIN_INTERVAL: 650,     // intervallo minimo (massima difficoltà)
   SPEEDUP: 0.94,         // fattore di accelerazione per ogni riga comparsa
   POINTS: { OCC: 1, ADI: 2 },
-  // Soglie di difficoltà basate sul tempo tra una richiesta e l'altra,
-  // confrontato con i tempi di reazione umani (scelta + azione ~500-700ms):
-  //  - "facile":     intervallo ampio, si fa in tempo comodamente
-  //  - "intermedio": ci si avvicina al tempo di reazione+azione medio
-  //  - "difficile":  intervallo sotto la soglia comoda -> serve prontezza
-  EASY_MS: 1500,         // >= 1.5s tra le righe => facile (verde)
-  HARD_MS: 900,          // < 0.9s tra le righe => difficile (rosso)
+  // Soglie di difficoltà in base al livello raggiunto:
+  //  - livelli 1-15  => facile (verde)
+  //  - livelli 16-30 => intermedio (giallo)
+  //  - livelli 31+   => difficile (rosso)
+  EASY_MAX_LEVEL: 15,
+  MEDIUM_MAX_LEVEL: 30,
 };
 
 // Dati sintetici di test.
@@ -155,15 +154,14 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   }
 
-  // Aggiorna il numero di livello e il colore in base alla velocità corrente.
+  // Aggiorna il numero di livello e il colore in base al livello raggiunto.
   function updateDifficulty() {
     const level = game.spawned + 1; // parte da 1 e cresce con la velocità
-    const interval = nextDelay();
     diffLevelEl.textContent = level;
 
-    let cls = "diff-medium";
-    if (interval >= RULES.EASY_MS) cls = "diff-easy";
-    else if (interval < RULES.HARD_MS) cls = "diff-hard";
+    let cls = "diff-hard";
+    if (level <= RULES.EASY_MAX_LEVEL) cls = "diff-easy";
+    else if (level <= RULES.MEDIUM_MAX_LEVEL) cls = "diff-medium";
     diffLevelEl.classList.remove("diff-easy", "diff-medium", "diff-hard");
     diffLevelEl.classList.add(cls);
   }
