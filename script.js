@@ -45,6 +45,108 @@ const TIPI = ["OCC", "ADI"];
 const rnd = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const rndInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
+/* -------------------------------------------------------------------------
+   Icona "medicazione" (Betadine + garze) per le prese in carico
+   di categoria Prestazioni Infermieristiche.
+   ------------------------------------------------------------------------- */
+const ICON_MEDICAZIONE = `
+  <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <!-- pila di garze -->
+    <g>
+      <rect x="33" y="29" width="26" height="26" rx="2.5" fill="#ffffff" stroke="#d3d9df" stroke-width="1.4"/>
+      <line x1="33" y1="36"  x2="59" y2="36"  stroke="#e7ebef" stroke-width="1.2"/>
+      <line x1="33" y1="42"  x2="59" y2="42"  stroke="#e7ebef" stroke-width="1.2"/>
+      <line x1="33" y1="48"  x2="59" y2="48"  stroke="#e7ebef" stroke-width="1.2"/>
+      <path d="M33 31 L59 31" stroke="#c7ced5" stroke-width="1.2"/>
+    </g>
+    <!-- flacone Betadine -->
+    <g>
+      <!-- tappo nero -->
+      <rect x="15" y="5"  width="11" height="9" rx="1.6" fill="#1b1b1b"/>
+      <rect x="13" y="12" width="15" height="6" rx="1.8" fill="#2c2c2c"/>
+      <!-- corpo giallo -->
+      <rect x="13" y="17" width="15" height="38" rx="3" fill="#f4c400"/>
+      <!-- etichetta bianca -->
+      <rect x="13" y="41" width="15" height="12" fill="#ffffff"/>
+      <rect x="15" y="44" width="11" height="2.2" rx="1" fill="#bdbdbd"/>
+      <rect x="15" y="48" width="8"  height="2.2" rx="1" fill="#d0d0d0"/>
+      <!-- barretta scritta "Betadine" -->
+      <rect x="15" y="25" width="11" height="3.4" rx="1" fill="#1b1b1b"/>
+      <rect x="15" y="31" width="9"  height="2.2" rx="1" fill="#7a5c00"/>
+    </g>
+  </svg>`;
+
+// Icone attualmente in volo (per poterle rimuovere a fine/reset partita).
+const flyingIcons = new Set();
+
+// Fa "volare" un'icona a partire dall'elemento cliccato: velocità costante,
+// direzione casuale, rimbalzi sui bordi, pop-out dopo 10 secondi.
+function spawnFlyingIcon(originEl) {
+  const SIZE = 60;
+  const SPEED = 190; // px/s, costante
+  const LIFETIME = 10000; // ms prima del pop-out
+
+  const el = document.createElement("div");
+  el.className = "flying-icon";
+  el.innerHTML = `<div class="flying-icon-inner">${ICON_MEDICAZIONE}</div>`;
+  document.body.appendChild(el);
+
+  const r = originEl.getBoundingClientRect();
+  let x = r.left + r.width / 2 - SIZE / 2;
+  let y = r.top + r.height / 2 - SIZE / 2;
+
+  const angle = Math.random() * Math.PI * 2;
+  let vx = Math.cos(angle) * SPEED;
+  let vy = Math.sin(angle) * SPEED;
+  let rot = 0;
+
+  let last = performance.now();
+  let rafId = 0;
+  let alive = true;
+
+  function frame(now) {
+    if (!alive) return;
+    const dt = Math.min((now - last) / 1000, 0.05); // clamp per stabilità
+    last = now;
+    x += vx * dt;
+    y += vy * dt;
+    const maxX = window.innerWidth - SIZE;
+    const maxY = window.innerHeight - SIZE;
+    if (x < 0) { x = 0; vx = -vx; } else if (x > maxX) { x = maxX; vx = -vx; }
+    if (y < 0) { y = 0; vy = -vy; } else if (y > maxY) { y = maxY; vy = -vy; }
+    rot += 45 * dt; // lenta rotazione per un tocco vivace
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    el.style.transform = `rotate(${rot}deg)`;
+    rafId = requestAnimationFrame(frame);
+  }
+  rafId = requestAnimationFrame(frame);
+
+  const rec = {
+    stop() {
+      alive = false;
+      cancelAnimationFrame(rafId);
+      clearTimeout(timer);
+      el.remove();
+      flyingIcons.delete(rec);
+    },
+  };
+
+  const timer = setTimeout(() => {
+    const inner = el.querySelector(".flying-icon-inner");
+    inner.classList.add("pop-out");
+    inner.addEventListener("animationend", () => rec.stop(), { once: true });
+  }, LIFETIME);
+
+  flyingIcons.add(rec);
+}
+
+// Rimuove immediatamente tutte le icone in volo (reset / fine partita).
+function clearFlyingIcons() {
+  flyingIcons.forEach((rec) => rec.stop());
+  flyingIcons.clear();
+}
+
 // ---- Navigazione tra schermate ----
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach((s) => {
@@ -177,6 +279,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function takeCharge(tr, tipo) {
     if (!game.running || game.paused || tr.classList.contains("taken")) return;
     setScore(game.score + (RULES.POINTS[tipo] || 0));
+    // Prestazioni Infermieristiche: parte l'icona "medicazione" volante.
+    if (tr.dataset.notaCategoria === "infermieristica") {
+      const btn = tr.querySelector(".btn-carico");
+      if (btn) spawnFlyingIcon(btn);
+    }
     tr.classList.add("taken");
     tr.addEventListener("animationend", () => tr.remove(), { once: true });
   }
@@ -295,6 +402,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Ritorna allo stato iniziale della schermata di gioco (menu visibile).
   function resetGame() {
     stopSpawning();
+    clearFlyingIcons();
     overlay.hidden = true;
     rowsBody.innerHTML = "";
     scoreChip.hidden = true;
