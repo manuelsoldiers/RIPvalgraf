@@ -11,6 +11,7 @@ const game = {
   paused: false,
   score: 0,
   inf: 0,           // parziale prestazioni infermieristiche prese in carico
+  fis: 0,           // parziale prestazioni fisioterapiche prese in carico
   spawned: 0,       // quante righe sono comparse (per accelerare la difficoltà)
   spawnTimer: null, // handle del timer di comparsa
   seq: 0,           // id progressivo delle righe
@@ -77,19 +78,48 @@ const ICON_MEDICAZIONE = `
     </g>
   </svg>`;
 
+/* -------------------------------------------------------------------------
+   Icona "fisioterapia" (fisioterapista + paziente sul lettino) per le prese
+   in carico di categoria Prestazioni Fisioterapiche.
+   ------------------------------------------------------------------------- */
+const ICON_FISIOTERAPIA = `
+  <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <!-- fisioterapista (dietro il lettino) -->
+    <g fill="#6f6f6f">
+      <circle cx="47" cy="16" r="5.2"/>
+      <path d="M41 24 h12 a2 2 0 0 1 2 2.1 l-1.4 15 a3 3 0 0 1 -3 2.9 h-6.2 a3 3 0 0 1 -3 -2.9 l-1.4 -15 a2 2 0 0 1 2 -2.1 z"/>
+    </g>
+    <!-- lettino arancione -->
+    <g fill="#f26a26">
+      <rect x="5" y="40" width="46" height="6" rx="2"/>
+      <rect x="9"  y="46" width="4" height="13" rx="1"/>
+      <rect x="43" y="46" width="4" height="13" rx="1"/>
+    </g>
+    <!-- paziente sdraiato (sopra il lettino) -->
+    <g fill="#6f6f6f">
+      <circle cx="12" cy="35" r="5"/>
+      <rect x="15" y="31" width="19" height="9" rx="4.5"/>
+    </g>
+    <!-- gamba sollevata del paziente + braccia del terapista (in primo piano) -->
+    <g fill="none" stroke="#6f6f6f" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M32 39 L38 29 L44 37"/>
+      <path d="M45 27 L40 31"/>
+    </g>
+  </svg>`;
+
 // Icone attualmente in volo (per poterle rimuovere a fine/reset partita).
 const flyingIcons = new Set();
 
 // Fa "volare" un'icona a partire dall'elemento cliccato: velocità costante,
 // direzione casuale, rimbalzi sui bordi, pop-out dopo 10 secondi.
-function spawnFlyingIcon(originEl) {
+function spawnFlyingIcon(originEl, iconSvg) {
   const SIZE = 60;
   const SPEED = 190; // px/s, costante
   const LIFETIME = 10000; // ms prima del pop-out
 
   const el = document.createElement("div");
   el.className = "flying-icon";
-  el.innerHTML = `<div class="flying-icon-inner">${ICON_MEDICAZIONE}</div>`;
+  el.innerHTML = `<div class="flying-icon-inner">${iconSvg}</div>`;
   document.body.appendChild(el);
 
   const r = originEl.getBoundingClientRect();
@@ -223,8 +253,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const scoreEl = document.getElementById("score");
   const infChip = document.getElementById("inf-chip");
   const infCountEl = document.getElementById("inf-count");
-  // Riusa la stessa icona "medicazione" del volo, in versione ridotta.
+  const fisChip = document.getElementById("fis-chip");
+  const fisCountEl = document.getElementById("fis-count");
+  // Riusa le stesse icone del volo, in versione ridotta, nei chip parziali.
   document.getElementById("inf-icon").innerHTML = ICON_MEDICAZIONE;
+  document.getElementById("fis-icon").innerHTML = ICON_FISIOTERAPIA;
   const overlay = document.getElementById("gameover-overlay");
   const finalScoreEl = document.getElementById("final-score");
   const restartBtn = document.getElementById("restart-btn");
@@ -260,6 +293,15 @@ document.addEventListener("DOMContentLoaded", () => {
     infChip.classList.add("bump");
   }
 
+  // Aggiorna il parziale delle prestazioni fisioterapiche.
+  function setFisCount(value) {
+    game.fis = value;
+    fisCountEl.textContent = value;
+    fisChip.classList.remove("bump");
+    void fisChip.offsetWidth;
+    fisChip.classList.add("bump");
+  }
+
   // Numero di richieste attualmente a schermo (escluse quelle in uscita).
   function rowsOnScreen() {
     return rowsBody.querySelectorAll("tr:not(.taken)").length;
@@ -293,11 +335,14 @@ document.addEventListener("DOMContentLoaded", () => {
   function takeCharge(tr, tipo) {
     if (!game.running || game.paused || tr.classList.contains("taken")) return;
     setScore(game.score + (RULES.POINTS[tipo] || 0));
-    // Prestazioni Infermieristiche: icona volante + parziale dedicato.
+    // Icona volante + parziale dedicato, in base alla macro-categoria.
+    const btn = tr.querySelector(".btn-carico");
     if (tr.dataset.notaCategoria === "infermieristica") {
-      const btn = tr.querySelector(".btn-carico");
-      if (btn) spawnFlyingIcon(btn);
+      if (btn) spawnFlyingIcon(btn, ICON_MEDICAZIONE);
       setInfCount(game.inf + 1);
+    } else if (tr.dataset.notaCategoria === "fisioterapica") {
+      if (btn) spawnFlyingIcon(btn, ICON_FISIOTERAPIA);
+      setFisCount(game.fis + 1);
     }
     tr.classList.add("taken");
     tr.addEventListener("animationend", () => tr.remove(), { once: true });
@@ -351,8 +396,10 @@ document.addEventListener("DOMContentLoaded", () => {
     rowsBody.innerHTML = "";
     scoreChip.hidden = false;
     infChip.hidden = false;
+    fisChip.hidden = false;
     setScore(0);
     setInfCount(0);
+    setFisCount(0);
     updateDifficulty(); // livello iniziale
     pausaBtn.disabled = false; // la pausa è attivabile solo a partita in corso
     setBadgeClickable(false); // durante la partita il badge non è cliccabile
@@ -424,8 +471,10 @@ document.addEventListener("DOMContentLoaded", () => {
     rowsBody.innerHTML = "";
     scoreChip.hidden = true;
     infChip.hidden = true;
+    fisChip.hidden = true;
     setScore(0);
     setInfCount(0);
+    setFisCount(0);
     game.spawned = 0;
     updateDifficulty(); // riporta l'indicatore al livello 1 (verde)
     pausaBtn.disabled = true;

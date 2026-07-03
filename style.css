@@ -427,8 +427,8 @@ body {
 /* Piccolo "pop" quando il punteggio aumenta */
 .score-chip.bump { animation: score-bump 0.28s ease; }
 
-/* Parziale prestazioni infermieristiche (icona Betadine + conteggio) */
-.inf-chip {
+/* Parziali per macro-categoria (icona + conteggio) */
+.count-chip {
   display: flex;
   align-items: center;
   gap: 7px;
@@ -441,14 +441,14 @@ body {
   color: #1f2d55;
   font-variant-numeric: tabular-nums;
 }
-.inf-icon {
+.count-icon {
   width: 24px;
   height: 24px;
   display: inline-flex;
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.15));
 }
-.inf-icon svg { width: 100%; height: 100%; display: block; }
-.inf-chip.bump { animation: score-bump 0.28s ease; }
+.count-icon svg { width: 100%; height: 100%; display: block; }
+.count-chip.bump { animation: score-bump 0.28s ease; }
 @keyframes score-bump {
   0% { transform: scale(1); }
   45% { transform: scale(1.18); }
