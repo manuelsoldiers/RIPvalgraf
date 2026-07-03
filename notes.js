@@ -118,8 +118,8 @@ const NOTES_DB = {
 // Sceglie una nota casuale restituendo testo + macro-categoria.
 // pFisio = probabilità (0..1) che la nota sia "fisioterapica"; il resto è
 // "infermieristica". Se non specificata vale 0.5 (50/50).
-// Il valore di pFisio viene estratto una volta per partita (vedi script.js)
-// così ogni sessione ha un mix diverso tra le due macro-categorie.
+// In gioco viene passato un valore casuale nuovo per ogni riga (vedi
+// script.js): ogni richiesta estrae la propria soglia che decide inf/fis.
 function pickNota(pFisio = 0.5) {
   const categoria = Math.random() < pFisio ? "fisioterapica" : "infermieristica";
   const lista = NOTES_DB[categoria];
