@@ -17,6 +17,7 @@ const game = {
   seq: 0,           // id progressivo delle righe
   frozen: false,    // powerup freeze attivo
   freezeTimer: null,
+  notaBias: 0.5,    // probabilità di nota "fisioterapica" (estratta a ogni partita)
 };
 
 // Powerup ottenibili dalle richieste COT/TOH (equiprobabili).
@@ -347,7 +348,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Crea e inserisce una nuova riga-richiesta.
   function spawnRow() {
     const type = pickType(); // tipologia pesata (PO/ADI/COT/UVM)
-    const nota = pickNota(); // { categoria, testo } dal database Note PA
+    const nota = pickNota(game.notaBias); // categoria pesata sul mix di partita
     const id = ++game.seq;
 
     const tr = document.createElement("tr");
@@ -509,6 +510,8 @@ document.addEventListener("DOMContentLoaded", () => {
     game.score = 0;
     game.spawned = 0;
     game.seq = 0;
+    // Mix inf/fis casuale per questa partita: crea eterogeneità tra i giocatori.
+    game.notaBias = Math.random();
     rowsBody.innerHTML = "";
     scoreChip.hidden = false;
     infChip.hidden = false;
