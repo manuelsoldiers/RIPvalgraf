@@ -477,9 +477,24 @@ body {
   font-size: 0.82rem;
   padding: 2px 9px;
   border-radius: 10px;
+  white-space: nowrap;
 }
-.tipo-OCC { background: #e3f0ff; color: #1e5fbf; }
+.tipo-PO  { background: #e3f0ff; color: #1e5fbf; }
 .tipo-ADI { background: #ffe6e2; color: #c0392b; }
+.tipo-COT { background: #cfe0ff; color: #12459e; }
+.tipo-UVM { background: #b3261e; color: #ffffff; }
+
+/* Sfondo riga per le tipologie speciali (applicato alle celle) */
+.cad-table tbody tr.row-cot > td {
+  background: #dcebff;          /* COT/TOH: blu chiaro */
+}
+.cad-table tbody tr.row-uvm > td {
+  animation: uvm-flash 0.75s ease-in-out infinite; /* UVM: rosso lampeggiante */
+}
+@keyframes uvm-flash {
+  0%, 100% { background: #ffd7d2; }
+  50%      { background: #ff8f84; }
+}
 
 /* Tasto PRENDI IN CARICO: evidente e lampeggiante */
 .btn-carico {

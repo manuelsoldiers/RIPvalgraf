@@ -25,7 +25,6 @@ const RULES = {
   START_INTERVAL: 2200,  // intervallo iniziale tra le righe
   MIN_INTERVAL: 650,     // intervallo minimo (massima difficoltà)
   SPEEDUP: 0.94,         // fattore di accelerazione per ogni riga comparsa
-  POINTS: { OCC: 1, ADI: 2 },
   // Soglie di difficoltà in base al livello raggiunto:
   //  - livelli 1-15  => facile (verde)
   //  - livelli 16-30 => intermedio (giallo)
@@ -41,8 +40,32 @@ const NOMI = ["Mario", "Giulia", "Antonio", "Francesca", "Giuseppe", "Anna",
 const COGNOMI = ["Rossi", "Russo", "Ferrari", "Esposito", "Bianchi", "Romano",
   "Colombo", "Ricci", "Marino", "Greco", "Bruno", "Gallo", "Conti", "De Luca",
   "Costa", "Giordano", "Mancini", "Rizzo", "Lombardi", "Moretti", "Barbieri"];
-const TIPI = ["OCC", "ADI"];
 // Le "Note PA" e le loro macro-categorie sono in notes.js (NOTES_DB / pickNota).
+
+/* -------------------------------------------------------------------------
+   Tipologie della colonna "Tipo".
+   - PO e ADI: richieste standard.
+   - COT/TOH e UVM PRIORITARIA: attiveranno powerup/minigiochi (in seguito);
+     per ora si distinguono per aspetto (sfondo riga) e probabilità.
+   weight = probabilità in % (la somma deve fare 100).
+   ------------------------------------------------------------------------- */
+const TYPES = [
+  { id: "PO",  label: "PO",                 weight: 60, points: 1 },
+  { id: "ADI", label: "ADI",                weight: 25, points: 2 },
+  { id: "COT", label: "COT/TOH",            weight: 10, points: 1, rowClass: "row-cot" },
+  { id: "UVM", label: "UVM PRIORITARIA!!",  weight: 5,  points: 1, rowClass: "row-uvm" },
+];
+
+// Estrazione pesata della tipologia in base alle probabilità (weight).
+function pickType() {
+  const r = Math.random() * 100;
+  let acc = 0;
+  for (const t of TYPES) {
+    acc += t.weight;
+    if (r < acc) return t;
+  }
+  return TYPES[TYPES.length - 1];
+}
 
 const rnd = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const rndInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -309,32 +332,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Crea e inserisce una nuova riga-richiesta.
   function spawnRow() {
-    const tipo = rnd(TIPI);
+    const type = pickType(); // tipologia pesata (PO/ADI/COT/UVM)
     const nota = pickNota(); // { categoria, testo } dal database Note PA
     const id = ++game.seq;
 
     const tr = document.createElement("tr");
     tr.dataset.id = id;
-    tr.dataset.tipo = tipo;
-    tr.dataset.notaCategoria = nota.categoria; // per la futura animazione per categoria
+    tr.dataset.tipo = type.id;
+    tr.dataset.notaCategoria = nota.categoria; // per l'animazione per categoria
+    if (type.rowClass) tr.classList.add(type.rowClass); // sfondo riga speciale
     tr.innerHTML = `
       <td>${rndInt(100000, 200000)}</td>
       <td>${RULES.DATA_APERTURA}</td>
       <td>${rnd(NOMI)} ${rnd(COGNOMI)}</td>
-      <td><span class="tipo-badge tipo-${tipo}">${tipo}</span></td>
+      <td><span class="tipo-badge tipo-${type.id}">${type.label}</span></td>
       <td>${nota.testo}</td>
       <td><button type="button" class="btn-carico">PRENDI IN CARICO</button></td>
     `;
     tr.querySelector(".btn-carico").addEventListener("click", () =>
-      takeCharge(tr, tipo)
+      takeCharge(tr, type)
     );
     rowsBody.appendChild(tr);
   }
 
   // Presa in carico: assegna i punti e rimuove la riga.
-  function takeCharge(tr, tipo) {
+  function takeCharge(tr, type) {
     if (!game.running || game.paused || tr.classList.contains("taken")) return;
-    setScore(game.score + (RULES.POINTS[tipo] || 0));
+    setScore(game.score + (type.points || 0));
     // Icona volante + parziale dedicato, in base alla macro-categoria.
     const btn = tr.querySelector(".btn-carico");
     if (tr.dataset.notaCategoria === "infermieristica") {
