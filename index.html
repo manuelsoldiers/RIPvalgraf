@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RIPValGraf — Sistema Val.Graf.</title>
-  <link rel="stylesheet" href="style.css?v=10" />
+  <link rel="stylesheet" href="style.css?v=11" />
 </head>
 <body>
   <!-- ===================== SCHERMATA: MENU PRINCIPALE (LOGIN) ===================== -->
@@ -250,10 +250,21 @@
         <button type="button" id="restart-btn" class="btn-accedi">Ricomincia</button>
       </div>
     </div>
+
+    <!-- Effetto ghiaccio (powerup freeze) -->
+    <div class="ice-overlay" id="ice-overlay" hidden aria-hidden="true"></div>
+
+    <!-- Banner powerup (grande scritta animata, ~2s) -->
+    <div class="powerup-banner" id="powerup-banner" hidden aria-hidden="true">
+      <div class="powerup-inner">
+        <span class="powerup-symbol" id="powerup-symbol"></span>
+        <span class="powerup-text" id="powerup-text"></span>
+      </div>
+    </div>
   </section>
 
-  <script src="leaderboard.js?v=10"></script>
-  <script src="notes.js?v=10"></script>
-  <script src="script.js?v=10"></script>
+  <script src="leaderboard.js?v=11"></script>
+  <script src="notes.js?v=11"></script>
+  <script src="script.js?v=11"></script>
 </body>
 </html>

@@ -15,7 +15,16 @@ const game = {
   spawned: 0,       // quante righe sono comparse (per accelerare la difficoltà)
   spawnTimer: null, // handle del timer di comparsa
   seq: 0,           // id progressivo delle righe
+  frozen: false,    // powerup freeze attivo
+  freezeTimer: null,
 };
+
+// Powerup ottenibili dalle richieste COT/TOH (equiprobabili).
+const POWERUPS = [
+  { id: "slow",   symbol: "🐢", text: "Riduzione della difficoltà", variant: "pw-slow" },
+  { id: "freeze", symbol: "❄️", text: "Richieste bloccate per 5 secondi", variant: "pw-freeze" },
+  { id: "clear",  symbol: "🧨", text: "Presa in carico libera", variant: "pw-clear" },
+];
 
 // Regole di gioco (facili da ritoccare in seguito).
 const RULES = {
@@ -288,6 +297,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const resumeBtn = document.getElementById("resume-btn");
   const toMenuBtn = document.getElementById("tomenu-btn");
   const diffLevelEl = document.getElementById("diff-level");
+  const iceOverlay = document.getElementById("ice-overlay");
+  const powerupBanner = document.getElementById("powerup-banner");
+  const powerupInner = powerupBanner.querySelector(".powerup-inner");
+  const powerupSymbol = document.getElementById("powerup-symbol");
+  const powerupText = document.getElementById("powerup-text");
   const userBadge = document.getElementById("user-badge");
   const logoutOverlay = document.getElementById("logout-overlay");
   const logoutConfirmBtn = document.getElementById("logout-confirm-btn");
@@ -327,7 +341,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Numero di richieste attualmente a schermo (escluse quelle in uscita).
   function rowsOnScreen() {
-    return rowsBody.querySelectorAll("tr:not(.taken)").length;
+    return rowsBody.querySelectorAll("tr:not(.taken):not(.exploding)").length;
   }
 
   // Crea e inserisce una nuova riga-richiesta.
@@ -358,6 +372,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // Presa in carico: assegna i punti e rimuove la riga.
   function takeCharge(tr, type) {
     if (!game.running || game.paused || tr.classList.contains("taken")) return;
+
+    // COT/TOH: non assegna punti/icone, ma attiva un powerup casuale.
+    if (type.id === "COT") {
+      triggerRandomPowerup(tr);
+      return;
+    }
+
     setScore(game.score + (type.points || 0));
     // Icona volante + parziale dedicato, in base alla macro-categoria.
     const btn = tr.querySelector(".btn-carico");
@@ -370,6 +391,76 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     tr.classList.add("taken");
     tr.addEventListener("animationend", () => tr.remove(), { once: true });
+  }
+
+  // ---- Powerup (COT/TOH) ----
+
+  // Mostra il grande banner animato del powerup (~2s, comparsa+scomparsa).
+  function showPowerupBanner(pw) {
+    powerupSymbol.textContent = pw.symbol;
+    powerupText.textContent = pw.text;
+    powerupInner.className = `powerup-inner ${pw.variant}`;
+    powerupBanner.hidden = false;
+    // Riavvia l'animazione anche in caso di powerup consecutivi.
+    powerupInner.style.animation = "none";
+    void powerupInner.offsetWidth;
+    powerupInner.style.animation = "";
+    powerupInner.addEventListener(
+      "animationend",
+      () => { powerupBanner.hidden = true; },
+      { once: true }
+    );
+  }
+
+  // 1) Riduce la difficoltà attuale del 20% (poi risale gradualmente).
+  function powerupSlow() {
+    game.spawned = Math.max(0, Math.floor(game.spawned * 0.8));
+    updateDifficulty();
+    if (game.running && !game.paused && !game.frozen) {
+      if (game.spawnTimer) clearTimeout(game.spawnTimer);
+      scheduleNext(nextDelay());
+    }
+  }
+
+  // 2) Congela la comparsa di nuove richieste per 5 secondi.
+  function powerupFreeze() {
+    game.frozen = true;
+    if (game.spawnTimer) { clearTimeout(game.spawnTimer); game.spawnTimer = null; }
+    iceOverlay.hidden = false;
+    if (game.freezeTimer) clearTimeout(game.freezeTimer);
+    game.freezeTimer = setTimeout(() => {
+      game.frozen = false;
+      game.freezeTimer = null;
+      iceOverlay.hidden = true;
+      if (game.running && !game.paused && !game.spawnTimer) {
+        scheduleNext(nextDelay());
+      }
+    }, 5000);
+  }
+
+  // 3) Svuota tutte le richieste a schermo con effetto esplosione
+  //    (nessun punteggio, nessuna icona fluttuante).
+  function powerupClear() {
+    const rows = rowsBody.querySelectorAll("tr:not(.taken):not(.exploding)");
+    rows.forEach((tr) => {
+      tr.classList.add("exploding");
+      tr.addEventListener("animationend", () => tr.remove(), { once: true });
+    });
+  }
+
+  // Estrae ed esegue un powerup casuale (equiprobabile). `tr` è la riga COT
+  // cliccata: con "clear" esplode insieme al resto, altrimenti esce da sola.
+  function triggerRandomPowerup(tr) {
+    const pw = POWERUPS[Math.floor(Math.random() * POWERUPS.length)];
+    showPowerupBanner(pw);
+    if (pw.id === "clear") {
+      powerupClear(); // include anche la riga cliccata (non ancora "taken")
+    } else {
+      tr.classList.add("taken");
+      tr.addEventListener("animationend", () => tr.remove(), { once: true });
+      if (pw.id === "slow") powerupSlow();
+      else if (pw.id === "freeze") powerupFreeze();
+    }
   }
 
   // Intervallo corrente in base al livello di difficoltà raggiunto.
@@ -395,7 +486,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Pianifica la comparsa della prossima riga, accelerando col tempo.
   function scheduleNext(delay) {
     game.spawnTimer = setTimeout(() => {
-      if (!game.running || game.paused) return;
+      game.spawnTimer = null;
+      if (!game.running || game.paused || game.frozen) return;
       spawnRow();
       game.spawned++;
       updateDifficulty();
@@ -442,6 +534,13 @@ document.addEventListener("DOMContentLoaded", () => {
       clearTimeout(game.spawnTimer);
       game.spawnTimer = null;
     }
+    // Interrompe un eventuale freeze in corso.
+    if (game.freezeTimer) {
+      clearTimeout(game.freezeTimer);
+      game.freezeTimer = null;
+    }
+    game.frozen = false;
+    iceOverlay.hidden = true;
   }
 
   // ---- Pausa ----
@@ -460,7 +559,8 @@ document.addEventListener("DOMContentLoaded", () => {
     game.paused = false;
     pauseOverlay.hidden = true;
     // Riprende dallo stesso livello di difficoltà (game.spawned invariato).
-    scheduleNext(nextDelay());
+    // Se un freeze è ancora attivo, sarà lui a ripianificare alla scadenza.
+    if (!game.frozen) scheduleNext(nextDelay());
   }
 
   // Torna alla schermata iniziale del gestionale (tasto "Da prendere in carico").
@@ -492,6 +592,7 @@ document.addEventListener("DOMContentLoaded", () => {
     stopSpawning();
     clearFlyingIcons();
     overlay.hidden = true;
+    powerupBanner.hidden = true;
     rowsBody.innerHTML = "";
     scoreChip.hidden = true;
     infChip.hidden = true;

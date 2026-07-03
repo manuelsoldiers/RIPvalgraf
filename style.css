@@ -658,3 +658,93 @@ body {
   55%  { transform: scale(1.6); opacity: 1; }
   100% { transform: scale(0.1); opacity: 0; }
 }
+
+/* ==================================================================
+   POWERUP (prese in carico COT/TOH)
+   ================================================================== */
+
+/* Banner grande con simbolo + scritta (~2s, comparsa e scomparsa) */
+.powerup-banner {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.powerup-banner[hidden] { display: none; }
+.powerup-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 30px 56px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #1f2d55, #2a3a6b);
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.45);
+  animation: powerup-life 2.6s cubic-bezier(0.2, 1.15, 0.3, 1) forwards;
+}
+.powerup-inner.pw-slow   { background: linear-gradient(135deg, #2f8bff, #0b3d91); }
+.powerup-inner.pw-freeze { background: linear-gradient(135deg, #5fd0ff, #0277bd); }
+.powerup-inner.pw-clear  { background: linear-gradient(135deg, #ff9d2e, #e53935); }
+
+.powerup-symbol {
+  font-size: 4.4rem;
+  line-height: 1;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.35));
+  animation: powerup-symbol 2.6s ease;
+}
+.powerup-text {
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-align: center;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+@keyframes powerup-life {
+  0%   { opacity: 0; transform: scale(0.55) translateY(26px); }
+  10%  { opacity: 1; transform: scale(1.09) translateY(0); }
+  16%  { transform: scale(1); }
+  84%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.16) translateY(-16px); }
+}
+@keyframes powerup-symbol {
+  0%   { transform: scale(0.2) rotate(-25deg); }
+  14%  { transform: scale(1.25) rotate(8deg); }
+  24%  { transform: scale(1) rotate(0); }
+  100% { transform: scale(1); }
+}
+
+/* Effetto ghiaccio (freeze) */
+.ice-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 14% 18%, rgba(255, 255, 255, 0.55), transparent 22%),
+    radial-gradient(circle at 86% 26%, rgba(255, 255, 255, 0.45), transparent 20%),
+    radial-gradient(circle at 50% 88%, rgba(255, 255, 255, 0.4), transparent 24%),
+    linear-gradient(135deg, rgba(160, 215, 245, 0.38), rgba(110, 185, 235, 0.30));
+  box-shadow: inset 0 0 130px rgba(110, 185, 235, 0.75);
+  animation: ice-in 0.3s ease;
+}
+.ice-overlay[hidden] { display: none; }
+@keyframes ice-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* Esplosione righe (clear) */
+.cad-table tbody tr.exploding { animation: row-explode-tr 0.5s ease forwards; }
+.cad-table tbody tr.exploding > td { animation: row-explode-td 0.5s ease forwards; }
+@keyframes row-explode-tr {
+  0%   { transform: scale(1);    opacity: 1; }
+  30%  { transform: scale(1.06); }
+  100% { transform: scale(0.8);  opacity: 0; }
+}
+@keyframes row-explode-td {
+  0%   { background: #fff3b0; }
+  45%  { background: #ffb03a; }
+  100% { background: #ff5a2c; }
+}
