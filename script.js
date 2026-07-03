@@ -10,6 +10,7 @@ const game = {
   running: false,
   paused: false,
   score: 0,
+  inf: 0,           // parziale prestazioni infermieristiche prese in carico
   spawned: 0,       // quante righe sono comparse (per accelerare la difficoltà)
   spawnTimer: null, // handle del timer di comparsa
   seq: 0,           // id progressivo delle righe
@@ -220,6 +221,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const rowsBody = document.getElementById("cad-rows");
   const scoreChip = document.getElementById("score-chip");
   const scoreEl = document.getElementById("score");
+  const infChip = document.getElementById("inf-chip");
+  const infCountEl = document.getElementById("inf-count");
+  // Riusa la stessa icona "medicazione" del volo, in versione ridotta.
+  document.getElementById("inf-icon").innerHTML = ICON_MEDICAZIONE;
   const overlay = document.getElementById("gameover-overlay");
   const finalScoreEl = document.getElementById("final-score");
   const restartBtn = document.getElementById("restart-btn");
@@ -244,6 +249,15 @@ document.addEventListener("DOMContentLoaded", () => {
     scoreChip.classList.remove("bump");
     void scoreChip.offsetWidth; // forza il restart dell'animazione
     scoreChip.classList.add("bump");
+  }
+
+  // Aggiorna il parziale delle prestazioni infermieristiche.
+  function setInfCount(value) {
+    game.inf = value;
+    infCountEl.textContent = value;
+    infChip.classList.remove("bump");
+    void infChip.offsetWidth;
+    infChip.classList.add("bump");
   }
 
   // Numero di richieste attualmente a schermo (escluse quelle in uscita).
@@ -279,10 +293,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function takeCharge(tr, tipo) {
     if (!game.running || game.paused || tr.classList.contains("taken")) return;
     setScore(game.score + (RULES.POINTS[tipo] || 0));
-    // Prestazioni Infermieristiche: parte l'icona "medicazione" volante.
+    // Prestazioni Infermieristiche: icona volante + parziale dedicato.
     if (tr.dataset.notaCategoria === "infermieristica") {
       const btn = tr.querySelector(".btn-carico");
       if (btn) spawnFlyingIcon(btn);
+      setInfCount(game.inf + 1);
     }
     tr.classList.add("taken");
     tr.addEventListener("animationend", () => tr.remove(), { once: true });
@@ -335,7 +350,9 @@ document.addEventListener("DOMContentLoaded", () => {
     game.seq = 0;
     rowsBody.innerHTML = "";
     scoreChip.hidden = false;
+    infChip.hidden = false;
     setScore(0);
+    setInfCount(0);
     updateDifficulty(); // livello iniziale
     pausaBtn.disabled = false; // la pausa è attivabile solo a partita in corso
     setBadgeClickable(false); // durante la partita il badge non è cliccabile
@@ -406,7 +423,9 @@ document.addEventListener("DOMContentLoaded", () => {
     overlay.hidden = true;
     rowsBody.innerHTML = "";
     scoreChip.hidden = true;
+    infChip.hidden = true;
     setScore(0);
+    setInfCount(0);
     game.spawned = 0;
     updateDifficulty(); // riporta l'indicatore al livello 1 (verde)
     pausaBtn.disabled = true;
