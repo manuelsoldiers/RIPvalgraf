@@ -890,3 +890,12 @@ body {
   border: 3px solid #12131f;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
+
+/* Note esplicative sotto i campi di login */
+.field-note {
+  margin: -8px 2px 14px;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: #7a828d;
+  text-align: left;
+}

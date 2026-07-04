@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RIPValGraf — Sistema Val.Graf.</title>
-  <link rel="stylesheet" href="style.css?v=17" />
+  <link rel="stylesheet" href="style.css?v=18" />
 </head>
 <body>
   <!-- ===================== SCHERMATA: MENU PRINCIPALE (LOGIN) ===================== -->
@@ -68,6 +68,7 @@
                 </svg>
               </span>
             </div>
+            <p class="field-note">Scegli un nome qualsiasi: serve solo a salvare il tuo punteggio in classifica.</p>
 
             <!-- Password: campo FISSO e NON modificabile ("01_07_2026") -->
             <div class="field">
@@ -87,6 +88,7 @@
                 </svg>
               </button>
             </div>
+            <p class="field-note">La password non serve: è fissa e già inserita.</p>
 
             <div class="login-actions">
               <button type="submit" id="accedi-btn" class="btn-accedi">Accedi</button>
@@ -250,7 +252,7 @@
 
         <!-- Immagine del Game Over: usa assets/gameover.png se presente,
              altrimenti mostra la pixel art SVG di fallback qui sotto. -->
-        <img class="gameover-photo" src="assets/gameover.png?v=17"
+        <img class="gameover-photo" src="assets/gameover.png?v=18"
              alt="Orda di pazienti arrabbiati con i forconi davanti all'edificio del CAD"
              onerror="this.style.display='none';var f=document.getElementById('gameover-art-fallback');if(f)f.hidden=false;">
 
@@ -391,9 +393,9 @@
     </div>
   </section>
 
-  <script src="leaderboard.js?v=17"></script>
-  <script src="notes.js?v=17"></script>
-  <script src="maze.js?v=17"></script>
-  <script src="script.js?v=17"></script>
+  <script src="leaderboard.js?v=18"></script>
+  <script src="notes.js?v=18"></script>
+  <script src="maze.js?v=18"></script>
+  <script src="script.js?v=18"></script>
 </body>
 </html>
