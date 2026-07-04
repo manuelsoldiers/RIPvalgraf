@@ -1036,3 +1036,32 @@ body {
 
 /* I badge Tipo dentro le istruzioni restano allineati al testo */
 .howto-list .tipo-badge { vertical-align: middle; }
+
+/* ==================================================================
+   Interruttore audio (on/off)
+   ================================================================== */
+.audio-toggle {
+  border: 1px solid #cfd6df;
+  background: #fff;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.audio-toggle:hover { background: #eef2ff; border-color: #b9c8e0; }
+.audio-toggle.off { border-color: #e6bcb8; background: #fdf0ef; }
+/* Sul login: in alto a destra */
+.login-wrap { position: relative; }
+.audio-toggle--login {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 5;
+}

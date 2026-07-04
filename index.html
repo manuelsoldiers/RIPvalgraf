@@ -4,13 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RIPValGraf — Sistema Val.Graf.</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=22" />
-  <link rel="stylesheet" href="style.css?v=22" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=23" />
+  <link rel="stylesheet" href="style.css?v=23" />
 </head>
 <body>
   <!-- ===================== SCHERMATA: MENU PRINCIPALE (LOGIN) ===================== -->
   <section id="screen-login" class="screen active">
     <div class="login-wrap">
+      <button type="button" class="audio-toggle audio-toggle--login" aria-label="Attiva/disattiva audio">🔊</button>
       <h1 class="app-title">
         <span>ADI Latina</span>
         <span>Sistema Val.Graf.</span>
@@ -158,6 +159,7 @@
       <div class="user-badge" id="user-badge" title="Torna alla schermata di accesso">
         <span id="user-name">utente</span> - CAD
       </div>
+      <button type="button" class="audio-toggle" aria-label="Attiva/disattiva audio">🔊</button>
       <button type="button" id="pausa-btn" class="btn-pausa">Pausa</button>
     </div>
 
@@ -289,7 +291,7 @@
 
         <!-- Immagine del Game Over: usa assets/gameover.png se presente,
              altrimenti mostra la pixel art SVG di fallback qui sotto. -->
-        <img class="gameover-photo" src="assets/gameover.png?v=22"
+        <img class="gameover-photo" src="assets/gameover.png?v=23"
              alt="Orda di pazienti arrabbiati con i forconi davanti all'edificio del CAD"
              onerror="this.style.display='none';var f=document.getElementById('gameover-art-fallback');if(f)f.hidden=false;">
 
@@ -443,9 +445,10 @@
     </div>
   </section>
 
-  <script src="leaderboard.js?v=22"></script>
-  <script src="notes.js?v=22"></script>
-  <script src="maze.js?v=22"></script>
-  <script src="script.js?v=22"></script>
+  <script src="sound.js?v=23"></script>
+  <script src="leaderboard.js?v=23"></script>
+  <script src="notes.js?v=23"></script>
+  <script src="maze.js?v=23"></script>
+  <script src="script.js?v=23"></script>
 </body>
 </html>

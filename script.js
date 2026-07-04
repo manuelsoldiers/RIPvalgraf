@@ -224,6 +224,12 @@ function showScreen(id) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  // ------------------------- AUDIO -------------------------
+  Sound.init();
+  document.querySelectorAll(".audio-toggle").forEach((btn) =>
+    btn.addEventListener("click", () => Sound.toggle())
+  );
+
   // ------------------------- LOGIN -------------------------
   const form = document.getElementById("login-form");
   const usernameInput = document.getElementById("username");
@@ -254,6 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("user-name").textContent = session.username;
     showScreen("screen-game");
     setBadgeClickable(true); // stato pre-partita: si può tornare all'accesso
+    Sound.play("accedi");
   });
 
   usernameInput.focus();
@@ -268,16 +275,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   forgotLink.addEventListener("click", (e) => {
     e.preventDefault();
+    Sound.play("click");
     siatStep1.hidden = false;
     siatStep2.hidden = true;
     siatOverlay.hidden = false;
   });
   siatAskBtn.addEventListener("click", () => {
     // Parte l'attesa infinita: unica via d'uscita è la X.
+    Sound.play("uvm");
     siatStep1.hidden = true;
     siatStep2.hidden = false;
   });
   siatClose.addEventListener("click", () => {
+    Sound.play("click");
     siatOverlay.hidden = true;
   });
 
@@ -416,6 +426,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     setScore(game.score + (type.points || 0) * game.scoreMultiplier);
+    Sound.play(type.id === "ADI" ? "adi" : "po");
     // Icona volante + parziale dedicato, in base alla macro-categoria.
     const btn = tr.querySelector(".btn-carico");
     if (tr.dataset.notaCategoria === "infermieristica") {
@@ -450,6 +461,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 1) Riduce la difficoltà attuale del 20% (poi risale gradualmente).
   function powerupSlow() {
+    Sound.play("slow");
     game.spawned = Math.max(0, Math.floor(game.spawned * 0.8));
     updateDifficulty();
     if (game.running && !game.paused && !game.frozen) {
@@ -460,6 +472,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 2) Congela la comparsa di nuove richieste per 5 secondi.
   function powerupFreeze() {
+    Sound.play("freeze");
     game.frozen = true;
     if (game.spawnTimer) { clearTimeout(game.spawnTimer); game.spawnTimer = null; }
     iceOverlay.hidden = false;
@@ -477,6 +490,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 3) Svuota tutte le richieste a schermo con effetto esplosione
   //    (nessun punteggio, nessuna icona fluttuante).
   function powerupClear() {
+    Sound.play("clear");
     const rows = rowsBody.querySelectorAll("tr:not(.taken):not(.exploding)");
     rows.forEach((tr) => {
       tr.classList.add("exploding");
@@ -502,6 +516,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---- Minigioco UVM PRIORITARIA ----
 
   function openUvmMinigame() {
+    Sound.play("uvm");
     game.inMinigame = true;
     if (game.spawnTimer) { clearTimeout(game.spawnTimer); game.spawnTimer = null; }
     uvmResult.hidden = true;
@@ -515,6 +530,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function endUvmMinigame(success) {
+    Sound.play(success ? "win" : "fail");
     if (uvmSession) { uvmSession.destroy(); uvmSession = null; }
     // Grande scritta di esito, poi chiusura automatica e ripresa del gioco.
     uvmPlay.hidden = true;
@@ -614,6 +630,7 @@ document.addEventListener("DOMContentLoaded", () => {
       game.spawnTimer = null;
       if (!game.running || game.paused || game.frozen || game.inMinigame) return;
       spawnRow();
+      Sound.play("spawn");
       game.spawned++;
       updateDifficulty();
 
@@ -650,6 +667,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Dopo una breve latenza iniziano a comparire le richieste.
     scheduleNext(RULES.FIRST_DELAY);
+    Sound.play("start");
+    Sound.startMusic();
   }
 
   function stopSpawning() {
@@ -668,6 +687,7 @@ document.addEventListener("DOMContentLoaded", () => {
     iceOverlay.hidden = true;
     // Azzera buff/malus e minigioco UVM.
     clearEffects();
+    Sound.stopMusic();
   }
 
   // ---- Pausa ----
@@ -679,12 +699,16 @@ document.addEventListener("DOMContentLoaded", () => {
       game.spawnTimer = null;
     }
     pauseOverlay.hidden = false;
+    Sound.play("click");
+    Sound.stopMusic();
   }
 
   function resumeGame() {
     if (!game.paused) return;
     game.paused = false;
     pauseOverlay.hidden = true;
+    Sound.play("click");
+    Sound.startMusic();
     // Riprende dallo stesso livello di difficoltà (game.spawned invariato).
     // Se un freeze è ancora attivo, sarà lui a ripianificare alla scadenza.
     if (!game.frozen) scheduleNext(nextDelay());
@@ -692,12 +716,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Torna alla schermata iniziale del gestionale (tasto "Da prendere in carico").
   function backToMenu() {
+    Sound.play("click");
     pauseOverlay.hidden = true;
     resetGame();
   }
 
   // Torna alla schermata di accesso (login), annullando la sessione corrente.
   function backToLogin() {
+    Sound.play("click");
     logoutOverlay.hidden = true;
     resetGame();
     session.username = null;
@@ -708,6 +734,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function endGame() {
     stopSpawning();
+    Sound.play("gameover");
     finalScoreEl.textContent = game.score;
     overlay.hidden = false;
     // Invia il punteggio alla classifica (Supabase); la promise viene
@@ -744,7 +771,7 @@ document.addEventListener("DOMContentLoaded", () => {
     startGame(); // riavvio immediato di una nuova partita
   });
   // Dal game over torna alla schermata iniziale ("Da prendere in carico").
-  gameoverMenuBtn.addEventListener("click", resetGame);
+  gameoverMenuBtn.addEventListener("click", () => { Sound.play("click"); resetGame(); });
 
   // ---- Classifica (leaderboard) ----
   const MEDALS = ["🥇", "🥈", "🥉"];
@@ -775,6 +802,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function openLeaderboard() {
+    Sound.play("click");
     leaderboardOverlay.hidden = false;
     lbList.innerHTML = "";
     lbEmpty.hidden = true;
@@ -788,7 +816,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   leaderboardBtn.addEventListener("click", openLeaderboard);
   gameoverLbBtn.addEventListener("click", openLeaderboard);
-  lbClose.addEventListener("click", () => { leaderboardOverlay.hidden = true; });
+  lbClose.addEventListener("click", () => { Sound.play("click"); leaderboardOverlay.hidden = true; });
 
   pausaBtn.addEventListener("click", pauseGame);
   resumeBtn.addEventListener("click", resumeGame);
@@ -797,10 +825,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // Click sul badge utente (solo in stato pre-partita): chiede conferma.
   userBadge.addEventListener("click", () => {
     if (!userBadge.classList.contains("clickable")) return;
+    Sound.play("click");
     logoutOverlay.hidden = false;
   });
   logoutConfirmBtn.addEventListener("click", backToLogin);
   logoutCancelBtn.addEventListener("click", () => {
+    Sound.play("click");
     logoutOverlay.hidden = true;
   });
 });
