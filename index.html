@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RIPValGraf — Sistema Val.Graf.</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=21" />
-  <link rel="stylesheet" href="style.css?v=21" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=22" />
+  <link rel="stylesheet" href="style.css?v=22" />
 </head>
 <body>
   <!-- ===================== SCHERMATA: MENU PRINCIPALE (LOGIN) ===================== -->
@@ -196,7 +196,27 @@
             <button type="button" id="leaderboard-btn" class="btn-leaderboard">🏆 Classifica</button>
           </div>
 
-          <!-- Istruzioni di gioco (scompaiono all'avvio della partita) -->
+          <div class="content-difficulty">
+            <span class="diff-label">Difficoltà:</span>
+            <span class="diff-level diff-easy" id="diff-level">1</span>
+          </div>
+
+          <table class="cad-table">
+            <thead>
+              <tr>
+                <th>Cod<br />P.A</th>
+                <th>Data<br />Apertura</th>
+                <th>Assistito</th>
+                <th>Tipo</th>
+                <th>Note PA</th>
+                <th>Presa in carico</th>
+              </tr>
+            </thead>
+            <!-- Corpo tabella vuoto: le richieste compariranno durante il gioco -->
+            <tbody id="cad-rows"></tbody>
+          </table>
+
+          <!-- Istruzioni di gioco: sotto la tabella; scompaiono all'avvio -->
           <section class="howto">
             <h3 class="howto-title">Come si gioca</h3>
             <ul class="howto-list">
@@ -226,26 +246,6 @@
               </li>
             </ul>
           </section>
-
-          <div class="content-difficulty">
-            <span class="diff-label">Difficoltà:</span>
-            <span class="diff-level diff-easy" id="diff-level">1</span>
-          </div>
-
-          <table class="cad-table">
-            <thead>
-              <tr>
-                <th>Cod<br />P.A</th>
-                <th>Data<br />Apertura</th>
-                <th>Assistito</th>
-                <th>Tipo</th>
-                <th>Note PA</th>
-                <th>Presa in carico</th>
-              </tr>
-            </thead>
-            <!-- Corpo tabella vuoto: le richieste compariranno durante il gioco -->
-            <tbody id="cad-rows"></tbody>
-          </table>
         </div>
       </div>
     </div>
@@ -289,7 +289,7 @@
 
         <!-- Immagine del Game Over: usa assets/gameover.png se presente,
              altrimenti mostra la pixel art SVG di fallback qui sotto. -->
-        <img class="gameover-photo" src="assets/gameover.png?v=21"
+        <img class="gameover-photo" src="assets/gameover.png?v=22"
              alt="Orda di pazienti arrabbiati con i forconi davanti all'edificio del CAD"
              onerror="this.style.display='none';var f=document.getElementById('gameover-art-fallback');if(f)f.hidden=false;">
 
@@ -443,9 +443,9 @@
     </div>
   </section>
 
-  <script src="leaderboard.js?v=21"></script>
-  <script src="notes.js?v=21"></script>
-  <script src="maze.js?v=21"></script>
-  <script src="script.js?v=21"></script>
+  <script src="leaderboard.js?v=22"></script>
+  <script src="notes.js?v=22"></script>
+  <script src="maze.js?v=22"></script>
+  <script src="script.js?v=22"></script>
 </body>
 </html>

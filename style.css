@@ -982,7 +982,7 @@ body {
 
 .howto {
   max-width: 720px;
-  margin: 0 0 18px;
+  margin: 20px 0 0;
   border: 1px solid #d9e2f0;
   border-radius: 12px;
   background: linear-gradient(180deg, #ffffff 0%, #f4f8ff 100%);
