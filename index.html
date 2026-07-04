@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RIPValGraf — Sistema Val.Graf.</title>
-  <link rel="stylesheet" href="style.css?v=14" />
+  <link rel="stylesheet" href="style.css?v=15" />
 </head>
 <body>
   <!-- ===================== SCHERMATA: MENU PRINCIPALE (LOGIN) ===================== -->
@@ -261,10 +261,37 @@
         <span class="powerup-text" id="powerup-text"></span>
       </div>
     </div>
+
+    <!-- Indicatori buff/malus (attivi per 10s dopo il minigioco UVM) -->
+    <div class="fx-glow" id="fx-glow" hidden aria-hidden="true"></div>
+    <div class="effect-indicator effect-buff" id="buff-indicator" hidden aria-hidden="true">
+      <span>★ PUNTI x2</span>
+    </div>
+    <div class="effect-indicator effect-malus" id="malus-indicator" hidden aria-hidden="true">
+      <span>⚠ RICHIESTE RADDOPPIATE</span>
+    </div>
+
+    <!-- Minigioco UVM PRIORITARIA -->
+    <div class="overlay" id="uvm-overlay" hidden>
+      <div class="overlay-box uvm-box">
+        <div id="uvm-play">
+          <h2 class="uvm-title">UVM PRIORITARIA</h2>
+          <p class="uvm-hint">Trascina l'auto fino alla casa del paziente — hai 5 secondi!</p>
+          <div class="uvm-maze" id="uvm-maze"></div>
+        </div>
+        <div id="uvm-result" hidden>
+          <div class="uvm-result-inner" id="uvm-result-inner">
+            <span class="uvm-result-symbol" id="uvm-result-symbol"></span>
+            <span class="uvm-result-text" id="uvm-result-text"></span>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
-  <script src="leaderboard.js?v=14"></script>
-  <script src="notes.js?v=14"></script>
-  <script src="script.js?v=14"></script>
+  <script src="leaderboard.js?v=15"></script>
+  <script src="notes.js?v=15"></script>
+  <script src="maze.js?v=15"></script>
+  <script src="script.js?v=15"></script>
 </body>
 </html>

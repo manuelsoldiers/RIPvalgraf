@@ -748,3 +748,120 @@ body {
   45%  { background: #ffb03a; }
   100% { background: #ff5a2c; }
 }
+
+/* ==================================================================
+   MINIGIOCO UVM PRIORITARIA + effetti buff/malus
+   ================================================================== */
+.uvm-box { max-width: none; width: auto; padding: 22px 24px 26px; }
+.uvm-title {
+  margin: 0 0 4px;
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: #b3261e;
+  text-align: center;
+}
+.uvm-hint { margin: 0 0 14px; text-align: center; color: #555; font-size: 0.95rem; }
+
+.uvm-maze {
+  position: relative;
+  margin: 0 auto;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.25);
+  touch-action: none;
+  cursor: grab;
+}
+.uvm-canvas { display: block; }
+.uvm-car {
+  position: absolute;
+  left: 0; top: 0;
+  width: 42px; height: 22px;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
+  transition: transform 0.08s linear;
+  z-index: 2;
+}
+.uvm-car svg { width: 100%; height: 100%; display: block; }
+.uvm-house {
+  position: absolute;
+  left: 0; top: 0;
+  width: 34px; height: 34px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 1;
+}
+.uvm-house svg { width: 100%; height: 100%; display: block; }
+
+/* Barra tempo */
+.uvm-timebar {
+  height: 10px;
+  border-radius: 6px;
+  background: #e3e8ef;
+  overflow: hidden;
+  margin: 0 auto 12px;
+}
+.uvm-timebar > div {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #2fd07a, #ffb03a 60%, #e2231a);
+}
+
+/* Schermata di esito del minigioco */
+#uvm-result { padding: 20px 6px; }
+.uvm-result-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: powerup-life 1.6s cubic-bezier(0.2, 1.15, 0.3, 1) both;
+}
+.uvm-result-symbol { font-size: 3.4rem; }
+.uvm-result-text {
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 0.02em;
+  max-width: 340px;
+}
+.uvm-result-inner.ok .uvm-result-text { color: #16a34a; }
+.uvm-result-inner.ko .uvm-result-text { color: #b3261e; }
+
+/* Indicatori buff/malus a schermo (10s) */
+.effect-indicator {
+  position: fixed;
+  top: 150px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 44;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  animation: effect-pulse 0.9s ease-in-out infinite;
+}
+.effect-indicator[hidden] { display: none; }
+.effect-buff  { background: linear-gradient(135deg, #ffcf3f, #f5a623); color: #5a3c00; }
+.effect-malus { background: linear-gradient(135deg, #ff6a5c, #d0261c); }
+@keyframes effect-pulse {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  50%      { transform: translateX(-50%) scale(1.07); }
+}
+
+/* Bordo schermo colorato mentre buff/malus sono attivi */
+.fx-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 43;
+  pointer-events: none;
+}
+.fx-glow[hidden] { display: none; }
+.fx-glow.buff  { box-shadow: inset 0 0 60px rgba(245, 166, 35, 0.55); }
+.fx-glow.malus { box-shadow: inset 0 0 60px rgba(226, 35, 26, 0.55); animation: malus-flicker 0.8s ease-in-out infinite; }
+@keyframes malus-flicker {
+  0%, 100% { opacity: 0.65; }
+  50%      { opacity: 1; }
+}

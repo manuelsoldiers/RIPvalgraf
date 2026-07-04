@@ -17,6 +17,11 @@ const game = {
   seq: 0,           // id progressivo delle righe
   frozen: false,    // powerup freeze attivo
   freezeTimer: null,
+  inMinigame: false,      // minigioco UVM in corso (spawn sospesi)
+  scoreMultiplier: 1,     // buff x2 punti (UVM riuscita)
+  speedMultiplier: 1,     // malus x2 velocità comparsa (UVM fallita)
+  buffTimer: null,
+  malusTimer: null,
 };
 
 // Powerup ottenibili dalle richieste COT/TOH (equiprobabili).
@@ -302,6 +307,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const powerupInner = powerupBanner.querySelector(".powerup-inner");
   const powerupSymbol = document.getElementById("powerup-symbol");
   const powerupText = document.getElementById("powerup-text");
+  // Minigioco UVM + effetti buff/malus
+  const uvmOverlay = document.getElementById("uvm-overlay");
+  const uvmPlay = document.getElementById("uvm-play");
+  const uvmMaze = document.getElementById("uvm-maze");
+  const uvmResult = document.getElementById("uvm-result");
+  const uvmResultInner = document.getElementById("uvm-result-inner");
+  const uvmResultSymbol = document.getElementById("uvm-result-symbol");
+  const uvmResultText = document.getElementById("uvm-result-text");
+  const buffIndicator = document.getElementById("buff-indicator");
+  const malusIndicator = document.getElementById("malus-indicator");
+  const fxGlow = document.getElementById("fx-glow");
+  let uvmSession = null; // handle del minigioco in corso
   const userBadge = document.getElementById("user-badge");
   const logoutOverlay = document.getElementById("logout-overlay");
   const logoutConfirmBtn = document.getElementById("logout-confirm-btn");
@@ -381,7 +398,15 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    setScore(game.score + (type.points || 0));
+    // UVM PRIORITARIA: apre il minigioco del labirinto.
+    if (type.id === "UVM") {
+      tr.classList.add("taken");
+      tr.addEventListener("animationend", () => tr.remove(), { once: true });
+      openUvmMinigame();
+      return;
+    }
+
+    setScore(game.score + (type.points || 0) * game.scoreMultiplier);
     // Icona volante + parziale dedicato, in base alla macro-categoria.
     const btn = tr.querySelector(".btn-carico");
     if (tr.dataset.notaCategoria === "infermieristica") {
@@ -465,12 +490,101 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // ---- Minigioco UVM PRIORITARIA ----
+
+  function openUvmMinigame() {
+    game.inMinigame = true;
+    if (game.spawnTimer) { clearTimeout(game.spawnTimer); game.spawnTimer = null; }
+    uvmResult.hidden = true;
+    uvmPlay.hidden = false;
+    uvmOverlay.hidden = false;
+    uvmSession = runUvmMinigame(uvmMaze, {
+      durationMs: 5000,
+      onSuccess: () => endUvmMinigame(true),
+      onFail: () => endUvmMinigame(false),
+    });
+  }
+
+  function endUvmMinigame(success) {
+    if (uvmSession) { uvmSession.destroy(); uvmSession = null; }
+    // Grande scritta di esito, poi chiusura automatica e ripresa del gioco.
+    uvmPlay.hidden = true;
+    uvmResultInner.className = `uvm-result-inner ${success ? "ok" : "ko"}`;
+    uvmResultSymbol.textContent = success ? "🚑" : "😡";
+    uvmResultText.textContent = success
+      ? "UVM prioritaria eseguita — Punti doppi per 10 secondi"
+      : "UVM prioritaria fallita — I pazienti sono furiosi";
+    uvmResult.hidden = false;
+
+    setTimeout(() => {
+      uvmOverlay.hidden = true;
+      game.inMinigame = false;
+      if (success) applyBuff();
+      else applyMalus();
+      // Riprende la comparsa delle richieste.
+      if (game.running && !game.paused && !game.frozen && !game.spawnTimer) {
+        scheduleNext(nextDelay());
+      }
+    }, 1800);
+  }
+
+  // Buff: punti x2 per 10 secondi.
+  function applyBuff() {
+    game.scoreMultiplier = 2;
+    buffIndicator.hidden = false;
+    fxGlow.className = "fx-glow buff";
+    fxGlow.hidden = false;
+    if (game.buffTimer) clearTimeout(game.buffTimer);
+    game.buffTimer = setTimeout(() => {
+      game.scoreMultiplier = 1;
+      buffIndicator.hidden = true;
+      fxGlow.hidden = true;
+      game.buffTimer = null;
+    }, 10000);
+  }
+
+  // Malus: velocità di comparsa x2 per 10 secondi.
+  function applyMalus() {
+    game.speedMultiplier = 2;
+    malusIndicator.hidden = false;
+    fxGlow.className = "fx-glow malus";
+    fxGlow.hidden = false;
+    // Applica subito la cadenza più rapida.
+    if (game.running && !game.paused && !game.frozen && !game.inMinigame) {
+      if (game.spawnTimer) { clearTimeout(game.spawnTimer); game.spawnTimer = null; }
+      scheduleNext(nextDelay());
+    }
+    if (game.malusTimer) clearTimeout(game.malusTimer);
+    game.malusTimer = setTimeout(() => {
+      game.speedMultiplier = 1;
+      malusIndicator.hidden = true;
+      fxGlow.hidden = true;
+      game.malusTimer = null;
+    }, 10000);
+  }
+
+  // Azzera buff/malus e minigioco (a fine partita / reset).
+  function clearEffects() {
+    if (game.buffTimer) { clearTimeout(game.buffTimer); game.buffTimer = null; }
+    if (game.malusTimer) { clearTimeout(game.malusTimer); game.malusTimer = null; }
+    game.scoreMultiplier = 1;
+    game.speedMultiplier = 1;
+    game.inMinigame = false;
+    if (uvmSession) { uvmSession.destroy(); uvmSession = null; }
+    uvmOverlay.hidden = true;
+    buffIndicator.hidden = true;
+    malusIndicator.hidden = true;
+    fxGlow.hidden = true;
+  }
+
   // Intervallo corrente in base al livello di difficoltà raggiunto.
+  // Il malus (speedMultiplier) dimezza l'intervallo (raddoppia la frequenza).
   function nextDelay() {
-    return Math.max(
+    const base = Math.max(
       RULES.MIN_INTERVAL,
       RULES.START_INTERVAL * Math.pow(RULES.SPEEDUP, game.spawned)
     );
+    return base / game.speedMultiplier;
   }
 
   // Aggiorna il numero di livello e il colore in base al livello raggiunto.
@@ -489,7 +603,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function scheduleNext(delay) {
     game.spawnTimer = setTimeout(() => {
       game.spawnTimer = null;
-      if (!game.running || game.paused || game.frozen) return;
+      if (!game.running || game.paused || game.frozen || game.inMinigame) return;
       spawnRow();
       game.spawned++;
       updateDifficulty();
@@ -543,6 +657,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     game.frozen = false;
     iceOverlay.hidden = true;
+    // Azzera buff/malus e minigioco UVM.
+    clearEffects();
   }
 
   // ---- Pausa ----
