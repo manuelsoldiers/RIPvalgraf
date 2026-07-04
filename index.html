@@ -248,8 +248,14 @@
         </p>
         <p class="overlay-score">Pazienti presi in carico: <strong id="final-score">0</strong></p>
 
-        <!-- Pixel art: orda di pazienti arrabbiati con i forconi davanti al CAD -->
-        <svg class="gameover-art" viewBox="0 0 200 120" shape-rendering="crispEdges"
+        <!-- Immagine del Game Over: usa assets/gameover.png se presente,
+             altrimenti mostra la pixel art SVG di fallback qui sotto. -->
+        <img class="gameover-photo" src="assets/gameover.png?v=16"
+             alt="Orda di pazienti arrabbiati con i forconi davanti all'edificio del CAD"
+             onerror="this.style.display='none';var f=document.getElementById('gameover-art-fallback');if(f)f.hidden=false;">
+
+        <!-- Pixel art di fallback (orda di pazienti col forcone davanti al CAD) -->
+        <svg id="gameover-art-fallback" class="gameover-art" viewBox="0 0 200 120" shape-rendering="crispEdges" hidden
              role="img" aria-label="Orda di pazienti arrabbiati con i forconi davanti all'edificio del CAD">
           <!-- Cielo notturno -->
           <rect x="0" y="0" width="200" height="120" fill="#20233c"/>

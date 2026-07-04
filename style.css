@@ -877,3 +877,14 @@ body {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
   image-rendering: pixelated;
 }
+
+/* Foto del Game Over (immagine fornita, sostituisce l'SVG di fallback) */
+.gameover-photo {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  margin: 8px auto 20px;
+  border-radius: 8px;
+  border: 3px solid #12131f;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
