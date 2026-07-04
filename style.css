@@ -877,6 +877,8 @@ body {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
   image-rendering: pixelated;
 }
+/* Il fallback SVG resta nascosto quando l'immagine PNG è disponibile */
+.gameover-art[hidden] { display: none; }
 
 /* Foto del Game Over (immagine fornita, sostituisce l'SVG di fallback) */
 .gameover-photo {
