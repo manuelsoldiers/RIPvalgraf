@@ -299,6 +299,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const finalScoreEl = document.getElementById("final-score");
   const restartBtn = document.getElementById("restart-btn");
   const gameoverMenuBtn = document.getElementById("gameover-menu-btn");
+  // Classifica (leaderboard)
+  const leaderboardBtn = document.getElementById("leaderboard-btn");
+  const gameoverLbBtn = document.getElementById("gameover-lb-btn");
+  const leaderboardOverlay = document.getElementById("leaderboard-overlay");
+  const lbClose = document.getElementById("lb-close");
+  const lbList = document.getElementById("lb-list");
+  const lbLoading = document.getElementById("lb-loading");
+  const lbEmpty = document.getElementById("lb-empty");
   const pauseOverlay = document.getElementById("pause-overlay");
   const resumeBtn = document.getElementById("resume-btn");
   const toMenuBtn = document.getElementById("tomenu-btn");
@@ -702,8 +710,9 @@ document.addEventListener("DOMContentLoaded", () => {
     stopSpawning();
     finalScoreEl.textContent = game.score;
     overlay.hidden = false;
-    // Predisposizione leaderboard (per ora non invia: Supabase non configurato).
-    Leaderboard.submitScore(session.username, game.score);
+    // Invia il punteggio alla classifica (Supabase); la promise viene
+    // attesa quando si apre la classifica, così mostra il valore aggiornato.
+    lastSubmit = Leaderboard.submitScore(session.username, game.score);
   }
 
   // Ritorna allo stato iniziale della schermata di gioco (menu visibile).
@@ -736,6 +745,50 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   // Dal game over torna alla schermata iniziale ("Da prendere in carico").
   gameoverMenuBtn.addEventListener("click", resetGame);
+
+  // ---- Classifica (leaderboard) ----
+  const MEDALS = ["🥇", "🥈", "🥉"];
+  let lastSubmit = null; // promise dell'ultimo invio punteggio
+
+  function renderLeaderboard(rows) {
+    lbList.innerHTML = "";
+    if (!rows.length) {
+      lbEmpty.hidden = false;
+      return;
+    }
+    lbEmpty.hidden = true;
+    rows.forEach((r, i) => {
+      const li = document.createElement("li");
+      li.className = "lb-row" + (i === 0 ? " gold" : i === 1 ? " silver" : i === 2 ? " bronze" : "");
+      const rank = document.createElement("span");
+      rank.className = "lb-rank";
+      rank.textContent = i < 3 ? MEDALS[i] : i + 1;
+      const name = document.createElement("span");
+      name.className = "lb-name";
+      name.textContent = r.name;
+      const score = document.createElement("span");
+      score.className = "lb-score";
+      score.textContent = r.score;
+      li.append(rank, name, score);
+      lbList.appendChild(li);
+    });
+  }
+
+  async function openLeaderboard() {
+    leaderboardOverlay.hidden = false;
+    lbList.innerHTML = "";
+    lbEmpty.hidden = true;
+    lbLoading.hidden = false;
+    // Se c'è un invio in corso (fine partita), attendilo per mostrare il dato aggiornato.
+    if (lastSubmit) { try { await lastSubmit; } catch (e) {} }
+    const rows = await Leaderboard.top(10);
+    lbLoading.hidden = true;
+    renderLeaderboard(rows);
+  }
+
+  leaderboardBtn.addEventListener("click", openLeaderboard);
+  gameoverLbBtn.addEventListener("click", openLeaderboard);
+  lbClose.addEventListener("click", () => { leaderboardOverlay.hidden = true; });
 
   pausaBtn.addEventListener("click", pauseGame);
   resumeBtn.addEventListener("click", resumeGame);

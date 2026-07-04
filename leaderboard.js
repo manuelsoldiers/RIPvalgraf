@@ -1,59 +1,76 @@
 /* =========================================================================
-   RIPValGraf — Predisposizione LEADERBOARD (classifica cloud).
-   Per ora NON invia nulla: è uno stub pronto per essere collegato a
-   Supabase in un secondo momento. Quando avremo il progetto Supabase
-   basterà valorizzare `config.url` / `config.anonKey` e implementare
-   le chiamate (via supabase-js o REST) nei punti marcati con TODO.
+   RIPValGraf — LEADERBOARD su Supabase.
+   Tabella public.leaderboard: mantiene (via trigger) solo i 10 punteggi
+   piu' alti. Lettura e inserimento anonimi (chiave pubblica).
    ========================================================================= */
 
 const Leaderboard = {
-  // Da compilare quando il progetto Supabase sarà pronto.
   config: {
-    url: "",       // es. "https://xxxx.supabase.co"
-    anonKey: "",   // chiave pubblica anon
-    table: "scores",
+    url: "https://gearmowckdvqkmmcusqd.supabase.co",
+    anonKey: "sb_publishable_gyDocBZbYFpUgRfTdBRN_Q_VcB6zf8r",
+    table: "leaderboard",
   },
 
   isConfigured() {
     return Boolean(this.config.url && this.config.anonKey);
   },
 
-  /**
-   * Registra un punteggio di fine partita.
-   * @param {string} username
-   * @param {number} score
-   * @returns {Promise<{ok:boolean, reason?:string}>}
-   */
-  async submitScore(username, score) {
-    if (!this.isConfigured()) {
-      console.info(
-        "[leaderboard] Supabase non ancora configurato: punteggio non inviato.",
-        { username, score }
-      );
-      return { ok: false, reason: "not-configured" };
-    }
-    // TODO (Supabase): inserire il record, ad esempio
-    //   await fetch(`${this.config.url}/rest/v1/${this.config.table}`, {
-    //     method: "POST",
-    //     headers: {
-    //       apikey: this.config.anonKey,
-    //       Authorization: `Bearer ${this.config.anonKey}`,
-    //       "Content-Type": "application/json",
-    //       Prefer: "return=minimal",
-    //     },
-    //     body: JSON.stringify({ username, score }),
-    //   });
-    return { ok: true };
+  _headers(extra) {
+    return Object.assign(
+      {
+        apikey: this.config.anonKey,
+        Authorization: `Bearer ${this.config.anonKey}`,
+      },
+      extra || {}
+    );
   },
 
   /**
-   * Restituisce i migliori punteggi (per la futura schermata classifica).
+   * Registra un punteggio di fine partita.
+   * @param {string} name
+   * @param {number} score
+   * @returns {Promise<{ok:boolean, status?:number, reason?:string}>}
+   */
+  async submitScore(name, score) {
+    if (!this.isConfigured()) return { ok: false, reason: "not-configured" };
+    const payload = {
+      name: String(name || "").trim().slice(0, 24),
+      score: Math.max(0, Math.floor(Number(score) || 0)),
+    };
+    if (!payload.name) return { ok: false, reason: "empty-name" };
+    try {
+      const res = await fetch(`${this.config.url}/rest/v1/${this.config.table}`, {
+        method: "POST",
+        headers: this._headers({
+          "Content-Type": "application/json",
+          Prefer: "return=minimal",
+        }),
+        body: JSON.stringify(payload),
+      });
+      return { ok: res.ok, status: res.status };
+    } catch (e) {
+      console.warn("[leaderboard] invio punteggio fallito:", e);
+      return { ok: false, reason: "network" };
+    }
+  },
+
+  /**
+   * Restituisce i migliori punteggi (max 10), ordinati per punteggio.
    * @param {number} limit
-   * @returns {Promise<Array<{username:string, score:number}>>}
+   * @returns {Promise<Array<{name:string, score:number}>>}
    */
   async top(limit = 10) {
     if (!this.isConfigured()) return [];
-    // TODO (Supabase): SELECT username, score ORDER BY score DESC LIMIT limit
-    return [];
+    try {
+      const url =
+        `${this.config.url}/rest/v1/${this.config.table}` +
+        `?select=name,score&order=score.desc,created_at.asc&limit=${limit}`;
+      const res = await fetch(url, { headers: this._headers() });
+      if (!res.ok) return [];
+      return await res.json();
+    } catch (e) {
+      console.warn("[leaderboard] lettura classifica fallita:", e);
+      return [];
+    }
   },
 };

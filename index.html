@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RIPValGraf — Sistema Val.Graf.</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=19" />
-  <link rel="stylesheet" href="style.css?v=18" />
+  <link rel="stylesheet" href="style.css?v=19" />
 </head>
 <body>
   <!-- ===================== SCHERMATA: MENU PRINCIPALE (LOGIN) ===================== -->
@@ -191,6 +191,11 @@
         <div class="content-inner">
           <h2 class="content-title">Scheda socio-sanitaria da prendere in carico</h2>
 
+          <!-- Visibile solo prima dell'avvio partita -->
+          <div class="pregame-actions">
+            <button type="button" id="leaderboard-btn" class="btn-leaderboard">🏆 Classifica</button>
+          </div>
+
           <div class="content-difficulty">
             <span class="diff-label">Difficoltà:</span>
             <span class="diff-level diff-easy" id="diff-level">1</span>
@@ -253,7 +258,7 @@
 
         <!-- Immagine del Game Over: usa assets/gameover.png se presente,
              altrimenti mostra la pixel art SVG di fallback qui sotto. -->
-        <img class="gameover-photo" src="assets/gameover.png?v=18"
+        <img class="gameover-photo" src="assets/gameover.png?v=19"
              alt="Orda di pazienti arrabbiati con i forconi davanti all'edificio del CAD"
              onerror="this.style.display='none';var f=document.getElementById('gameover-art-fallback');if(f)f.hidden=false;">
 
@@ -351,8 +356,21 @@
 
         <div class="overlay-actions">
           <button type="button" id="restart-btn" class="btn-accedi">Ricomincia</button>
+          <button type="button" id="gameover-lb-btn" class="btn-ghost">🏆 Classifica</button>
           <button type="button" id="gameover-menu-btn" class="btn-ghost">Ritorna al menu principale</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Overlay Classifica (leaderboard) -->
+    <div class="overlay" id="leaderboard-overlay" hidden>
+      <div class="overlay-box lb-box">
+        <button type="button" class="overlay-close" id="lb-close" aria-label="Chiudi">&times;</button>
+        <h2 class="lb-title">🏆 Classifica</h2>
+        <p class="lb-sub">I 10 punteggi più alti</p>
+        <p class="lb-state" id="lb-loading" hidden>Caricamento…</p>
+        <p class="lb-state" id="lb-empty" hidden>Nessun punteggio ancora.<br />Sii il primo a entrare in classifica!</p>
+        <ol class="lb-list" id="lb-list"></ol>
       </div>
     </div>
 
@@ -394,9 +412,9 @@
     </div>
   </section>
 
-  <script src="leaderboard.js?v=18"></script>
-  <script src="notes.js?v=18"></script>
-  <script src="maze.js?v=18"></script>
-  <script src="script.js?v=18"></script>
+  <script src="leaderboard.js?v=19"></script>
+  <script src="notes.js?v=19"></script>
+  <script src="maze.js?v=19"></script>
+  <script src="script.js?v=19"></script>
 </body>
 </html>
