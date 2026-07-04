@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RIPValGraf — Sistema Val.Graf.</title>
-  <link rel="stylesheet" href="style.css?v=15" />
+  <link rel="stylesheet" href="style.css?v=16" />
 </head>
 <body>
   <!-- ===================== SCHERMATA: MENU PRINCIPALE (LOGIN) ===================== -->
@@ -244,10 +244,106 @@
         <h2 class="overlay-title">Game Over</h2>
         <p class="overlay-text">
           Troppe richieste da prendere in carico!<br />
-          Il servizio è andato in sovraccarico.
+          Il CAD è andato in sovraccarico.
         </p>
         <p class="overlay-score">Pazienti presi in carico: <strong id="final-score">0</strong></p>
-        <button type="button" id="restart-btn" class="btn-accedi">Ricomincia</button>
+
+        <!-- Pixel art: orda di pazienti arrabbiati con i forconi davanti al CAD -->
+        <svg class="gameover-art" viewBox="0 0 200 120" shape-rendering="crispEdges"
+             role="img" aria-label="Orda di pazienti arrabbiati con i forconi davanti all'edificio del CAD">
+          <!-- Cielo notturno -->
+          <rect x="0" y="0" width="200" height="120" fill="#20233c"/>
+          <rect x="0" y="0" width="200" height="40" fill="#2c3152"/>
+          <!-- Luna -->
+          <rect x="26" y="8" width="12" height="12" fill="#f1ecc4"/>
+          <rect x="24" y="10" width="2" height="8" fill="#f1ecc4"/>
+          <rect x="38" y="10" width="2" height="8" fill="#f1ecc4"/>
+          <rect x="30" y="10" width="3" height="3" fill="#d9d3a6"/>
+          <!-- Facciata edificio CAD -->
+          <rect x="0" y="18" width="200" height="72" fill="#6b7280"/>
+          <rect x="0" y="18" width="200" height="4" fill="#7c828e"/>
+          <rect x="0" y="18" width="4" height="72" fill="#5b616c"/>
+          <rect x="196" y="18" width="4" height="72" fill="#5b616c"/>
+          <!-- Finestre illuminate -->
+          <g>
+            <rect x="8"  y="30" width="12" height="9" fill="#3a3f4a"/><rect x="10" y="32" width="8" height="5" fill="#ffd24d"/>
+            <rect x="26" y="30" width="12" height="9" fill="#3a3f4a"/><rect x="28" y="32" width="8" height="5" fill="#2a2e38"/>
+            <rect x="8"  y="52" width="12" height="9" fill="#3a3f4a"/><rect x="10" y="54" width="8" height="5" fill="#ffd24d"/>
+            <rect x="26" y="52" width="12" height="9" fill="#3a3f4a"/><rect x="28" y="54" width="8" height="5" fill="#ffd24d"/>
+            <rect x="162" y="30" width="12" height="9" fill="#3a3f4a"/><rect x="164" y="32" width="8" height="5" fill="#ffd24d"/>
+            <rect x="180" y="30" width="12" height="9" fill="#3a3f4a"/><rect x="182" y="32" width="8" height="5" fill="#ffd24d"/>
+            <rect x="162" y="52" width="12" height="9" fill="#3a3f4a"/><rect x="164" y="54" width="8" height="5" fill="#2a2e38"/>
+            <rect x="180" y="52" width="12" height="9" fill="#3a3f4a"/><rect x="182" y="54" width="8" height="5" fill="#ffd24d"/>
+          </g>
+          <!-- Insegna "CAD" -->
+          <rect x="82" y="25" width="46" height="21" fill="#ffffff"/>
+          <rect x="82" y="25" width="46" height="21" fill="none" stroke="#e2231a" stroke-width="2"/>
+          <g fill="#2e2e8f">
+            <!-- C -->
+            <rect x="92" y="31" width="2" height="10"/><rect x="92" y="31" width="6" height="2"/><rect x="92" y="39" width="6" height="2"/>
+            <!-- A -->
+            <rect x="101" y="31" width="2" height="10"/><rect x="106" y="31" width="2" height="10"/><rect x="101" y="31" width="7" height="2"/><rect x="101" y="35" width="7" height="2"/>
+            <!-- D -->
+            <rect x="111" y="31" width="2" height="10"/><rect x="111" y="31" width="6" height="2"/><rect x="111" y="39" width="6" height="2"/><rect x="115" y="32" width="2" height="8"/>
+          </g>
+          <!-- Porta -->
+          <rect x="93" y="66" width="16" height="24" fill="#2b2620"/>
+          <rect x="105" y="77" width="2" height="3" fill="#c9a24a"/>
+          <!-- Terreno -->
+          <rect x="0" y="88" width="200" height="32" fill="#241f2b"/>
+          <rect x="0" y="88" width="200" height="3" fill="#181521"/>
+
+          <defs>
+            <!-- Rivoltoso con forcone (colore vestiti = currentColor) -->
+            <g id="rioter">
+              <rect x="13" y="0" width="1.6" height="7" fill="#c6cad3"/>
+              <rect x="16" y="0" width="1.6" height="7" fill="#c6cad3"/>
+              <rect x="19" y="0" width="1.6" height="7" fill="#c6cad3"/>
+              <rect x="12" y="6" width="9" height="2" fill="#c6cad3"/>
+              <rect x="16" y="8" width="2" height="26" fill="#8a5a2a"/>
+              <rect x="13" y="24" width="5" height="4" fill="currentColor"/>
+              <rect x="2" y="26" width="3" height="10" fill="currentColor"/>
+              <rect x="5" y="25" width="12" height="14" fill="currentColor"/>
+              <rect x="6" y="39" width="4" height="12" fill="#2b2b36"/>
+              <rect x="12" y="39" width="4" height="12" fill="#2b2b36"/>
+              <rect x="6" y="14" width="9" height="10" fill="#e6b48c"/>
+              <rect x="6" y="14" width="9" height="3" fill="#33241a"/>
+              <rect x="7" y="18" width="3" height="1" fill="#20202a"/>
+              <rect x="11" y="18" width="3" height="1" fill="#20202a"/>
+              <rect x="8" y="19" width="1.4" height="1.4" fill="#20202a"/>
+              <rect x="11.6" y="19" width="1.4" height="1.4" fill="#20202a"/>
+              <rect x="8" y="21" width="5" height="1.6" fill="#7a2222"/>
+            </g>
+            <!-- Torcia -->
+            <g id="torch">
+              <rect x="1" y="10" width="2" height="20" fill="#7a4a20"/>
+              <rect x="0" y="4" width="4" height="6" fill="#ff8a1e"/>
+              <rect x="1" y="0" width="2" height="6" fill="#ffd23e"/>
+            </g>
+          </defs>
+
+          <!-- Fila posteriore (sagome scure, densità dell'orda) -->
+          <use href="#rioter" x="18"  y="70" style="color:#3a3f52"/>
+          <use href="#rioter" x="70"  y="70" style="color:#3a3f52"/>
+          <use href="#rioter" x="122" y="70" style="color:#3a3f52"/>
+          <use href="#rioter" x="152" y="70" style="color:#3a3f52"/>
+          <!-- Torce sparse -->
+          <use href="#torch" x="48"  y="52"/>
+          <use href="#torch" x="150" y="50"/>
+          <!-- Fila anteriore -->
+          <use href="#rioter" x="2"   y="64" style="color:#6a4a3c"/>
+          <use href="#rioter" x="30"  y="61" style="color:#3f5a6a"/>
+          <use href="#rioter" x="58"  y="66" style="color:#7a3a3a"/>
+          <use href="#rioter" x="86"  y="60" style="color:#4a5a44"/>
+          <use href="#rioter" x="114" y="64" style="color:#5a4a6a"/>
+          <use href="#rioter" x="142" y="62" style="color:#455066"/>
+          <use href="#rioter" x="170" y="66" style="color:#6a4a3c"/>
+        </svg>
+
+        <div class="overlay-actions">
+          <button type="button" id="restart-btn" class="btn-accedi">Ricomincia</button>
+          <button type="button" id="gameover-menu-btn" class="btn-ghost">Ritorna al menu principale</button>
+        </div>
       </div>
     </div>
 
@@ -289,9 +385,9 @@
     </div>
   </section>
 
-  <script src="leaderboard.js?v=15"></script>
-  <script src="notes.js?v=15"></script>
-  <script src="maze.js?v=15"></script>
-  <script src="script.js?v=15"></script>
+  <script src="leaderboard.js?v=16"></script>
+  <script src="notes.js?v=16"></script>
+  <script src="maze.js?v=16"></script>
+  <script src="script.js?v=16"></script>
 </body>
 </html>

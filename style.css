@@ -865,3 +865,15 @@ body {
   0%, 100% { opacity: 0.65; }
   50%      { opacity: 1; }
 }
+
+/* Pixel art nel Game Over (orda di pazienti col forcone) */
+.gameover-art {
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  margin: 8px auto 20px;
+  border-radius: 8px;
+  border: 3px solid #12131f;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  image-rendering: pixelated;
+}

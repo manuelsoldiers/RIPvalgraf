@@ -298,6 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const overlay = document.getElementById("gameover-overlay");
   const finalScoreEl = document.getElementById("final-score");
   const restartBtn = document.getElementById("restart-btn");
+  const gameoverMenuBtn = document.getElementById("gameover-menu-btn");
   const pauseOverlay = document.getElementById("pause-overlay");
   const resumeBtn = document.getElementById("resume-btn");
   const toMenuBtn = document.getElementById("tomenu-btn");
@@ -733,6 +734,8 @@ document.addEventListener("DOMContentLoaded", () => {
     resetGame();
     startGame(); // riavvio immediato di una nuova partita
   });
+  // Dal game over torna alla schermata iniziale ("Da prendere in carico").
+  gameoverMenuBtn.addEventListener("click", resetGame);
 
   pausaBtn.addEventListener("click", pauseGame);
   resumeBtn.addEventListener("click", resumeGame);
